@@ -1,0 +1,89 @@
+﻿@page "/edit/{Id:long}"
+@using TG.Blazor.IndexedDB
+@inject IndexedDBManager DbManager
+@inject NavigationManager Navigation
+@implements IAsyncDisposable
+<PageTitle>Editar Documento</PageTitle>
+
+@if (document == null)
+{
+    <p>Carregando...</p>
+}
+else
+{
+    <div class="edit-page">
+        <input @bind-value="document.Title" @bind-value:event="oninput" placeholder="Título" class="zen-title" />
+        <div class="zen-editor"
+             contenteditable="true"
+             @oninput="OnContentChanged"
+             @ref="editorDiv">
+        </div>
+
+        <button @onclick="Salvar">Salvar</button>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public long Id { get; set; }
+
+    private Document document;
+    private ElementReference editorDiv;
+
+    private string ultimoContentCarregado = null;
+
+    private bool conteudoSetado = false;
+
+    private DotNetObjectReference<Edit> dotNetRef;
+
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JS.InvokeVoidAsync("registerCtrlS", dotNetRef);
+        }
+        if (document != null && !conteudoSetado)
+        {
+            await JS.InvokeVoidAsync("setZenContent", editorDiv, document.Content ?? "");
+            conteudoSetado = true;
+        }
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        document = await DbManager.GetRecordById<long, Document>("documents", Id);
+        conteudoSetado = false; // Garante que o conteúdo será setado ao renderizar
+
+    }
+
+    private async Task Salvar()
+    {
+        // Captura o conteúdo editado
+        document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
+        document.LastModified = DateTime.Now;
+        var record = new StoreRecord<Document> { Storename = "documents", Data = document };
+        await DbManager.UpdateRecord(record);
+        // Navigation.NavigateTo("/");
+    }
+
+    private async Task OnContentChanged()
+    {
+        document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
+    }
+
+    [JSInvokable]
+    public async Task SalvarViaAtalho()
+    {
+        await Salvar();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await JS.InvokeVoidAsync("unregisterCtrlS");
+        dotNetRef?.Dispose();
+    }
+
+    [Inject] IJSRuntime JS { get; set; }
+}

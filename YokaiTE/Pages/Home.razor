@@ -1,0 +1,69 @@
+﻿@page "/"
+@using IndexedDB.Blazor
+@using TG.Blazor.IndexedDB
+@using YokaiTE.Data
+@layout MainLayoutHome
+
+@inject IndexedDBManager DbManager
+@inject NavigationManager Navigation
+
+
+<PageTitle>Home</PageTitle>
+
+<div class="page">
+    <div class="documents">
+        <div @onclick="CreateDocument" class="document-card">
+            <span style="font-size: 2em;">+</span>
+        </div>
+        @foreach (var doc in documents)
+        {
+            <div @onclick="() => EditDocument(doc.Id)" class="document-card">
+                <span style="font-size: 1.2em;">📄</span>
+                <span>@doc.Title</span>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    private YokaiDb db;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadDocuments();
+    }
+
+    private async Task CreateDocument()
+    {
+        var doc = new Document { Title = "Novo Documento", LastModified = DateTime.Now };
+        var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
+        await DbManager.AddRecord(record);
+
+        documents = await DbManager.GetRecords<Document>("documents");
+
+        var novoDoc = documents
+        .OrderByDescending(d => d.LastModified)
+        .FirstOrDefault(d => d.Title == doc.Title && d.LastModified == doc.LastModified);
+
+        if (novoDoc != null)
+            Navigation.NavigateTo($"/edit/{novoDoc.Id}");
+    }
+
+    private void EditDocument(long id)
+    {
+        Navigation.NavigateTo($"/edit/{id}");
+    }
+
+    List<Document> documents = new()
+    {
+
+    };
+
+    private async Task LoadDocuments()
+    {
+        var loadedDoc = await DbManager.GetRecords<Document>("documents");
+        documents = loadedDoc.OrderByDescending(d => d.LastModified).ToList();
+        StateHasChanged();
+    }
+
+}

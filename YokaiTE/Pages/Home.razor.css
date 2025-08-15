@@ -1,0 +1,33 @@
+﻿.page{
+    min-height: 100vh;
+    background-color: #f2f2f2;  
+    display: flex;
+    align-content: center;
+}
+
+.documents{
+    width: 60%;
+    margin: auto;
+    display: flex;
+    flex-wrap: wrap;    
+    gap: 2rem;
+}
+
+.document-card{
+    background-color: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    
+    
+    height: 300px;
+    width: calc(300px * 0.707);
+}
+
+.document-card:hover{
+    transform: scale(1.05);
+    transition: transform 0.3s ease-in-out;
+}

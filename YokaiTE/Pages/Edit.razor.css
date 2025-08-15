@@ -1,0 +1,26 @@
+﻿/* wwwroot/css/site.css */
+.zen-title {
+    border: none;
+    font-size: 2em;
+    font-weight: bold;
+    width: 100%;
+    background: transparent;
+    outline: none;
+    margin-bottom: 1em;
+    margin:auto;
+    text-align:center;
+}
+
+.zen-editor {
+    width:50%;
+    margin:auto;
+    min-height: 300px;
+    font-size: 1.2em;
+    outline: none;
+    border: none;
+    padding: 1em;
+    background: transparent;
+    color: #222;
+    line-height: 1.6;
+    margin-bottom: 2em;
+}
