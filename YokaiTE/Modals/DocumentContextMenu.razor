@@ -1,0 +1,38 @@
+﻿@if (Visible)
+{
+    <div class="modal-back" @onclick="OnBackdropClick">
+        <div class="context-menu-modal" style="top:@TopPx; left:@LeftPx;" @onclick:stopPropagation>
+            <button class="context-btn" @onclick="Rename">Renomear</button>
+            <button class="context-btn" @onclick="Delete">Excluir</button>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public EventCallback OnRename { get; set; }
+    [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public int Top { get; set; }
+    [Parameter] public int Left { get; set; }
+
+    private string TopPx => $"{Top}px";
+    private string LeftPx => $"{Left}px";
+
+    private async Task OnBackdropClick()
+    {
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Rename()
+    {
+        await OnRename.InvokeAsync();
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Delete()
+    {
+        await OnDelete.InvokeAsync();
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

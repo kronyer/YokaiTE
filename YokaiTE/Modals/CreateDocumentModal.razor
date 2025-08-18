@@ -1,0 +1,83 @@
+﻿@using YokaiTE.Data
+
+@if (Visible)
+{
+    <div class="modal-back">
+        <div class="modal">
+            <div class="modal-top-container">
+                <span class="modal-name">Criar novo arquivo</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <g clip-path="url(#clip0_2_642)">
+                        <path d="M12.5 3.5L3.5 12.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
+                        <path d="M12.5 12.5L3.5 3.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
+                    </g>
+                    <defs>
+                        <clipPath id="clip0_2_642">
+                            <rect width="16" height="16" fill="white" />
+                        </clipPath>
+                    </defs>
+                </svg>
+            </div>
+            <div class="first-input-row">
+                <MudTextField ShrinkLabel @bind-Value="Title" Placeholder="Titulo" Variant="Variant.Text"></MudTextField>
+                <MudSelect @bind-Value="BackgroundColor">
+                    @* @foreach (var state in _states)
+                    {
+                        <MudSelectItem Value="state">@state</MudSelectItem>
+                    } *@
+                </MudSelect>
+            </div>
+            <div>
+                <MudSelect Label="Idioma" @bind-Value="Language">
+                    @* @foreach (var state in _states)
+                    {
+                        <MudSelectItem Value="state">@state</MudSelectItem>
+                    } *@
+                </MudSelect>
+            </div>
+            <div>
+                <MudSwitch @bind-Value="IsPaged" Label="Quebra de página" Color="Color.Primary" />
+                <MudSwitch @bind-Value="IsMarkdown" Label="Interpretar markdown" Color="Color.Primary" />
+
+            </div>
+            <div class="button-container">
+                <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
+                <button @onclick="OnConfirm" class="confirm-btn">Criar</button>
+            </div>
+            @* <h3>Novo Documento</h3>
+            <input @bind="Title" placeholder="Título" />
+            <textarea @bind="Content" placeholder="Conteúdo"></textarea>
+            <div class="modal-actions">
+                <button @onclick="OnConfirm">Salvar</button>
+                <button @onclick="OnCancel">Cancelar</button>
+            </div> *@
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public EventCallback<Document> OnSave { get; set; }
+
+    private string Title { get; set; } = string.Empty;
+    private string Language { get; set; } = string.Empty;
+    private string BackgroundColor { get; set; } = string.Empty;
+    private bool IsMarkdown;
+    private bool IsPaged;
+    private async Task OnConfirm()
+    {
+        await OnSave.InvokeAsync(new Document
+        {
+            Title = Title,
+            CreatedAt = DateTime.Now,
+            LastModified = DateTime.Now
+        });
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task OnCancel()
+    {
+        await VisibleChanged.InvokeAsync(false);
+    }
+}

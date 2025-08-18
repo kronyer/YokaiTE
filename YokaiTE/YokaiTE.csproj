@@ -9,14 +9,16 @@
 
     <ItemGroup>
         <PackageReference Include="IndexedDB.Blazor" Version="1.1.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.8"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all"/>
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="9.0.8" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="9.0.8" PrivateAssets="all" />
+        <PackageReference Include="MudBlazor" Version="8.11.0" />
+        <PackageReference Include="MudBlazor.ThemeManager" Version="3.0.0" />
         <PackageReference Include="QuestPDF" Version="2025.7.0" />
         <PackageReference Include="TG.Blazor.IndexedDB" Version="1.5.0-preview" />
     </ItemGroup>
 
     <ItemGroup>
-        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js"/>
+        <ServiceWorker Include="wwwroot\service-worker.js" PublishedContent="wwwroot\service-worker.published.js" />
     </ItemGroup>
 
 </Project>

@@ -1,0 +1,16 @@
+.top-bar {
+    display: flex;
+    padding: 16px 128px;
+    align-items: center;
+    gap: 64px;
+    align-self: stretch;
+    border-bottom: 1px solid #BABABA;
+    position: sticky;
+    top: 0;
+    background: #E6E6E6;
+    z-index:999;
+}
+
+.content{
+    min-height:100vh;
+}
