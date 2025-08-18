@@ -1,0 +1,27 @@
+﻿.search-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    border-bottom: 1px solid #D7D7D7;
+}
+
+.search-input svg {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+}
+
+.search-input input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+
+    color: #4C4C4C;
+    font-family: "Cabinet Grotesk", sans-serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    line-height: normal;
+}

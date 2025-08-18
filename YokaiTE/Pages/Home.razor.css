@@ -136,3 +136,16 @@
     justify-content: space-between;
     width: 100%;
 }
+
+.logo-img{
+    cursor:pointer;
+}
+
+.new-doc-span{
+    color: #181818;
+    font-family: "Cabinet Grotesk";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}

@@ -1,0 +1,63 @@
+﻿.switch-toggle {
+    --w: 116px;
+    --h: 40px;
+    --pad: 6px;
+    --thumb: 32px;
+
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    width: var(--w);
+    height: var(--h);
+    border-radius: var(--h);
+    background: #d7d7d7;
+    padding: 0 var(--pad);
+    cursor: pointer;
+
+    display: flex;
+    height: 48px;
+    padding: 8px;
+    align-items: center;
+    gap: 8px;
+}
+
+.switch-toggle.is-disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Ícones fixos */
+.switch-toggle .icon {
+    z-index: 1;
+}
+.switch-toggle .icon svg {
+    width: 20px;
+    height: 20px;
+}
+
+/* knob preto */
+.switch-toggle .thumb {
+    position: absolute;
+    top: 50%;
+    left: var(--pad);
+    width: 46px;
+    height: 32px;
+    border-radius: 16px;
+    background: #181818;
+    transform: translateY(-50%);
+    transition: left 0.25s ease;
+    display: grid;
+    place-items: center;
+}
+.switch-toggle.on .thumb {
+    left: calc(100% - 46px - var(--pad));
+}
+
+/* ícone dentro do knob */
+.switch-toggle .thumb svg {
+    width: 46px;
+    height: 32px;
+    aspect-ratio: 23/16;
+}

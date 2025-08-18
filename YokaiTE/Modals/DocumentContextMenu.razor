@@ -1,6 +1,8 @@
 ﻿@if (Visible)
 {
-    <div class="modal-back" @onclick="OnBackdropClick">
+    <div @oncontextmenu:preventDefault="true" 
+         @oncontextmenu="OnBackdropClick"
+         class="modal-back" @onclick="OnBackdropClick">
         <div class="context-menu-modal" style="top:@TopPx; left:@LeftPx;" @onclick:stopPropagation>
             <button class="context-btn" @onclick="Rename">Renomear</button>
             <button class="context-btn" @onclick="Delete">Excluir</button>
