@@ -1,0 +1,52 @@
+﻿.dual-select {
+    position: relative;
+}
+
+.group {
+    border-bottom: 1px solid #D7D7D7;
+    padding: 4px 0;
+}
+
+.group:last-child {
+    border-bottom: none;
+}
+
+.label {
+    color: #9aa0a6;
+    padding: 4px 12px;
+    font-size: 12px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 12px;
+    cursor: pointer;
+}
+
+.item:hover {
+    background: #f2f2f2;
+}
+
+.item.active {
+    font-weight: 500;
+}
+
+.check {
+    font-size: 12px;
+}
+
+
+.select-btn{
+    display: flex;
+    width: 175px;
+    align-items: center;
+    gap: 8px;
+}
+
+.dropdown-select{
+    position: absolute;
+    width: 100%;
+    border-radius: 8px;
+    background: #E6E6E6;
+}

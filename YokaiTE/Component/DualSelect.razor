@@ -1,0 +1,79 @@
+﻿@using YokaiTE.Enums
+<div class="dual-select">
+    <button @onclick="ToggleOpen" class="select-btn">
+        @(Value ?? "Selecione...")
+        <span class="arrow">@((isOpen) ? "▲" : "▼")</span>
+    </button>
+    @if (isOpen)
+    {
+        <div class="dropdown-select">
+        <div class="group">
+            <div class="label">Ordenar por:</div>
+            @foreach (var option in Options)
+            {
+                <div class="item @(Value == option ? "active" : null)"
+                     @onclick="() => OnValueChange(option)">
+                    <span>@option</span>
+                    @if (Value == option)
+                    {
+                        <span class="check">✔</span>
+                    }
+                </div>
+            }
+        </div>
+
+        <div class="group">
+            <div class="label">Ordem:</div>
+            <div class="item @(Order == SortOrder.Asc ? "active" : null)"
+                 @onclick="() => OnOrderChange(SortOrder.Asc)">
+                <span>Crescente</span>
+                @if (Order == SortOrder.Asc)
+                {
+                    <span class="check">✔</span>
+                }
+            </div>
+            <div class="item @(Order == SortOrder.Desc ? "active" : null)"
+                 @onclick="() => OnOrderChange(SortOrder.Desc)">
+                <span>Decrescente</span>
+                @if (Order == SortOrder.Desc)
+                {
+                    <span class="check">✔</span>
+                }
+            </div>
+        </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+
+    [Parameter] public SortOrder Order { get; set; }
+    [Parameter] public EventCallback<SortOrder> OrderChanged { get; set; }
+
+    [Parameter] public List<string> Options { get; set; } = new();
+
+    private bool isOpen = false;
+
+    private void ToggleOpen() => isOpen = !isOpen;
+    
+    private async Task OnValueChange(string v)
+    {
+        if (Value != v)
+        {
+            Value = v;
+            await ValueChanged.InvokeAsync(v);
+        }
+    }
+
+    private async Task OnOrderChange(SortOrder o)
+    {
+        if (Order != o)
+        {
+            Order = o;
+            await OrderChanged.InvokeAsync(o);
+        }
+    }
+}
+

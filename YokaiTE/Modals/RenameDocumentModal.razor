@@ -1,0 +1,49 @@
+﻿@using TG.Blazor.IndexedDB
+@inject IndexedDBManager DbManager
+
+<div class="modal-back">
+    <div class="modal">
+        <div class="modal-top-container">
+            <h1 class="modal-name">Renomear arquivo</h1>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <g clip-path="url(#clip0_2_642)">
+                    <path d="M12.5 3.5L3.5 12.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
+                    <path d="M12.5 12.5L3.5 3.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
+                </g>
+                <defs>
+                    <clipPath id="clip0_2_642">
+                        <rect width="16" height="16" fill="white" />
+                    </clipPath>
+                </defs>
+            </svg>
+        </div>
+        <div class="w-100">
+            <div class="search-input">
+                <input placeholder="Nome..." type="text" @bind="newName" />
+            </div>
+        </div>
+        <div class="button-container">
+            <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
+            <button @onclick="Rename" class="confirm-btn">Criar</button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Document Document { get; set; }
+    [Parameter] public EventCallback OnClose { get; set; }
+
+    private string newName;
+
+    private async Task Rename()
+    {
+        Document.Title = newName;
+        await DbManager.UpdateRecord(new StoreRecord<Document> { Storename = "documents", Data = Document });
+        await OnClose.InvokeAsync();
+    }
+    
+    private async Task OnCancel()
+    {
+        await OnClose.InvokeAsync();
+    }
+}

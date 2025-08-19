@@ -4,6 +4,13 @@
     gap: 8px;
     padding: 4px 0;
     border-bottom: 1px solid #D7D7D7;
+    width: 60%;
+    transition: border-bottom-color 0.3s, border-bottom-width 0.3s ease-in-out;
+
+}
+
+.search-input:focus-within {
+    border-bottom: 1px solid #181818;
 }
 
 .search-input svg {
