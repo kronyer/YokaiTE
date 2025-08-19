@@ -1,4 +1,5 @@
-﻿@using YokaiTE.Data
+﻿@using YokaiTE.Component
+@using YokaiTE.Data
 
 @if (Visible)
 {
@@ -27,30 +28,20 @@
                     } *@
                 </MudSelect>
             </div>
-            <div>
-                <MudSelect Label="Idioma" @bind-Value="Language">
-                    @* @foreach (var state in _states)
-                    {
-                        <MudSelectItem Value="state">@state</MudSelectItem>
-                    } *@
-                </MudSelect>
+            <div class="w-100">
+                <NormalSelect Label="Idioma"
+                               Options="IdiomaOptions"
+                               @bind-Value="Language" />
             </div>
-            <div>
-                <MudSwitch @bind-Value="IsPaged" Label="Quebra de página" Color="Color.Primary" />
-                <MudSwitch @bind-Value="IsMarkdown" Label="Interpretar markdown" Color="Color.Primary" />
+            <div class="switch-container">
+                <NormalSwitch Label="Quebra de página" @bind-Value="PageBreak" />
+                <NormalSwitch Label="Interpretar markdown" @bind-Value="ParseMarkdown" />
 
             </div>
             <div class="button-container">
                 <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
                 <button @onclick="OnConfirm" class="confirm-btn">Criar</button>
             </div>
-            @* <h3>Novo Documento</h3>
-            <input @bind="Title" placeholder="Título" />
-            <textarea @bind="Content" placeholder="Conteúdo"></textarea>
-            <div class="modal-actions">
-                <button @onclick="OnConfirm">Salvar</button>
-                <button @onclick="OnCancel">Cancelar</button>
-            </div> *@
         </div>
     </div>
 }
@@ -59,12 +50,19 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback<Document> OnSave { get; set; }
+    
+    private List<NormalSelect.SelectOption> IdiomaOptions =
+    [
+        new("pt-BR","pt-BR"),
+        new("en-US","en-US"),
+        new("es-ES","es-ES")
+    ];
 
     private string Title { get; set; } = string.Empty;
     private string Language { get; set; } = string.Empty;
     private string BackgroundColor { get; set; } = string.Empty;
-    private bool IsMarkdown;
-    private bool IsPaged;
+    private bool ParseMarkdown;
+    private bool PageBreak;
     private async Task OnConfirm()
     {
         await OnSave.InvokeAsync(new Document

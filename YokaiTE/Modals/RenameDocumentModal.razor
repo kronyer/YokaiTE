@@ -19,7 +19,7 @@
         </div>
         <div class="w-100">
             <div class="search-input">
-                <input placeholder="Nome..." type="text" @bind="newName" />
+                <input placeholder="Nome..." type="text" @bind="Document.Title" />
             </div>
         </div>
         <div class="button-container">
@@ -33,11 +33,9 @@
     [Parameter] public Document Document { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
-    private string newName;
 
     private async Task Rename()
     {
-        Document.Title = newName;
         await DbManager.UpdateRecord(new StoreRecord<Document> { Storename = "documents", Data = Document });
         await OnClose.InvokeAsync();
     }

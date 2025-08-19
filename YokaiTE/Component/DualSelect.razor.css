@@ -50,3 +50,11 @@
     border-radius: 8px;
     background: #E6E6E6;
 }
+
+.modal-back {
+    background: rgba(0, 0, 0, 0.4);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+}

@@ -58,9 +58,9 @@
             <div class="order-container">
                 <DualSelect Options="OrderOptions"
                             Value="@SelectedField"
-                            ValueChanged="@((string? v) => SelectedField = v)"
+                            ValueChanged="@OnOrderFieldChanged"
                             Order="@SelectedOrder"
-                            OrderChanged="@((SortOrder o) => SelectedOrder = o)" />
+                            OrderChanged="@OnOrderDirectionChanged" />
                 
                 <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade" />
 
@@ -92,7 +92,7 @@
                 @foreach (var doc in documents)
                 {
                     <div @oncontextmenu:preventDefault="true"
-                         @onclick="(e => ShowContextMenu(e, doc))" class="document-card"
+                         @onclick="(e => EditDocument(doc.Id))" class="document-card"
                          @oncontextmenu="(e => ShowContextMenu(e, doc))
                          ">
                         <div class="card-preview"></div>
@@ -215,6 +215,39 @@
 
     };
 
+    private void SortDocuments()
+    {
+        Func<Document, object>? keySelector = SelectedField switch
+        {
+            "Data de abertura" => d => d.LastOpened,
+            "Data de edição" => d => d.LastModified,
+            "Data de criação" => d => d.CreatedAt,
+            "Ordem alfabética" => d => d.Title,
+            _ => d => d.LastModified
+        };
+
+        if (SelectedOrder == SortOrder.Asc)
+            documents = documents.OrderBy(keySelector).ToList();
+        else
+            documents = documents.OrderByDescending(keySelector).ToList();
+
+        StateHasChanged();
+    }
+
+    private async Task OnOrderFieldChanged(string? field)
+    {
+        SelectedField = field ?? "Data de edição";
+        SortDocuments();
+        await Task.CompletedTask;
+    }
+
+    private async Task OnOrderDirectionChanged(SortOrder order)
+    {
+        SelectedOrder = order;
+        SortDocuments();
+        await Task.CompletedTask;
+    }
+
     private async Task LoadDocuments()
     {
         var loadedDoc = await DbManager.GetRecords<Document>("documents");
@@ -223,13 +256,13 @@
         {
             documents = loadedDoc
                 .Where(d => d.Title.Contains(SearchValue, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(d => d.LastModified)
                 .ToList();
         }
         else
         {
-            documents = loadedDoc.OrderByDescending(d => d.LastModified).ToList();
+            documents = loadedDoc.ToList();
         }
+        SortDocuments();
         StateHasChanged();
     }
 

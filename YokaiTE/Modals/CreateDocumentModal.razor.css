@@ -73,3 +73,12 @@
     border-radius: 8px;
     border: 1px solid #181818;
 }
+
+.switch-container{
+    display: flex;
+    padding: 0 32px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    align-self: stretch;
+}

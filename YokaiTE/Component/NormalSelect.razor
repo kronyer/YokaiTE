@@ -1,0 +1,117 @@
+﻿@using System.Diagnostics.CodeAnalysis
+
+<div class="minsel @(Disabled ? "minsel--disabled" : null) @(FullWidth ? "w-100" : null)"
+     tabindex="0"
+     @onkeydown="HandleKeyDown"
+     @onblur="Close">
+
+    @if (!string.IsNullOrWhiteSpace(Label))
+    {
+        <label class="minsel__label">@Label</label>
+    }
+
+    <button type="button"
+            class="minsel__control"
+            disabled="@(Disabled)"
+            @onclick="Toggle">
+        <span class="minsel__value">
+            @CurrentLabel
+        </span>
+
+        <svg class="minsel__chev" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+            <path d="M7 10l5 5 5-5" fill="none" stroke="currentColor" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+    </button>
+
+    @if (Open)
+    {
+        <ul class="minsel__menu" role="listbox">
+            @for (var i = 0; i < Options.Count; i++)
+            {
+                var opt = Options[i];
+                var selected = string.Equals(opt.Value, Value, StringComparison.Ordinal);
+                <li class="minsel__item @(i == ActiveIndex ? "is-active" : null) @(selected ? "is-selected" : null)"
+                    role="option"
+                    aria-selected="@(selected)"
+                    @onclick="@(() => Select(opt.Value))">
+                    @opt.Label
+                    @if (selected)
+                    {
+                        <svg class="minsel__check" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                            <path d="M20 6L9 17l-5-5" fill="none" stroke="currentColor" stroke-width="2"
+                                  stroke-linecap="round" stroke-linejoin="round"></path>
+                        </svg>
+                    }
+                </li>
+            }
+        </ul>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public List<SelectOption> Options { get; set; } = new();
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string? Label { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public bool FullWidth { get; set; } = true;
+
+    private bool Open { get; set; }
+    private int ActiveIndex { get; set; } = -1;
+
+    private string CurrentLabel =>
+        Options.FirstOrDefault(o => o.Value == Value)?.Label ?? Options!.FirstOrDefault()!.Label;
+
+    private void Toggle() => Open = !Open;
+    private void Close(FocusEventArgs _ = default!) => Open = false;
+
+    private async Task Select(string? newValue)
+    {
+        Open = false;
+        if (newValue != Value)
+        {
+            Value = newValue;
+            await ValueChanged.InvokeAsync(Value);
+        }
+    }
+
+    private async Task HandleKeyDown(KeyboardEventArgs e)
+    {
+        if (Disabled) return;
+
+        if (!Open && (e.Key == "Enter" || e.Key == " " || e.Key == "ArrowDown"))
+        {
+            Open = true;
+            ActiveIndex = Math.Max(0, Options.FindIndex(o => o.Value == Value));
+            StateHasChanged();
+            return;
+        }
+
+        if (Open)
+        {
+            if (e.Key == "Escape") { Open = false; return; }
+
+            if (e.Key == "ArrowDown")
+            {
+                ActiveIndex = Math.Min(Options.Count - 1, (ActiveIndex < 0 ? 0 : ActiveIndex + 1));
+                return;
+            }
+            if (e.Key == "ArrowUp")
+            {
+                ActiveIndex = Math.Max(0, (ActiveIndex < 0 ? 0 : ActiveIndex - 1));
+                return;
+            }
+            if (e.Key == "Enter")
+            {
+                if (ActiveIndex >= 0 && ActiveIndex < Options.Count)
+                    await Select(Options[ActiveIndex].Value);
+            }
+        }
+    }
+
+    public record SelectOption(string Value, string Label)
+    {
+        public static SelectOption From(string v) => new(v, v);
+    }
+}
