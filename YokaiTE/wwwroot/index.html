@@ -2,67 +2,78 @@
 <html lang="pt-BR">
 
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>YokaiTE</title>
-    <base href="/" />
-    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="css/app.css" />
-    <link rel="icon" type="image/png" href="favicon.png" />
-    <link href="YokaiTE.styles.css" rel="stylesheet" />
-    <link href="manifest.webmanifest" rel="manifest" />
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
-    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
-    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <base href="/"/>
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="css/app.css"/>
+    <link rel="icon" type="image/png" href="favicon.png"/>
+    <link href="YokaiTE.styles.css" rel="stylesheet"/>
+    <link href="manifest.webmanifest" rel="manifest"/>
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png"/>
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet"/>
     <!-- Important: Increment the version parameter whenever you update MudBlazor to prevent caching issues -->
-    <link href="_content/MudBlazor/MudBlazor.min.css?v=1" rel="stylesheet" />
-    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@100,200,300,400,500,700,800,900&display=swap" rel="stylesheet">
+    <link href="_content/MudBlazor/MudBlazor.min.css?v=1" rel="stylesheet"/>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@100,200,300,400,500,700,800,900&display=swap"
+          rel="stylesheet">
 
 </head>
 
 <body>
-    <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
-    </div>
+<div id="app">
+    <svg class="loading-progress">
+        <circle r="40%" cx="50%" cy="50%"/>
+        <circle r="40%" cx="50%" cy="50%"/>
+    </svg>
+    <div class="loading-progress-text"></div>
+</div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
-        <span class="dismiss">🗙</span>
-    </div>
-    <script src="_content/MudBlazor/MudBlazor.min.js?v=1"></script>
-    <script src="_framework/blazor.webassembly.js"></script>
-    <script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <script src="js/exportToPdf.js"></script>
-    <script src="js/showOptions.js"></script>
-    <script>navigator.serviceWorker.register('service-worker.js');</script>
-    <script>
-        window.getZenContent = function (element) {
-            return element.innerHTML;
-        }
-        window.setZenContent = function (element, content) {
-            element.innerHTML = content;
-        }
-    </script>
-    <script>
-        window.registerCtrlS = function (dotNetHelper) {
-            window.ctrlSHandler = function (e) {
-                if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
-                    e.preventDefault();
-                    dotNetHelper.invokeMethodAsync('SalvarViaAtalho');
-                }
-            };
-            window.addEventListener('keydown', window.ctrlSHandler);
+<div id="blazor-error-ui">
+    An unhandled error has occurred.
+    <a href="." class="reload">Reload</a>
+    <span class="dismiss">🗙</span>
+</div>
+<script src="_content/MudBlazor/MudBlazor.min.js?v=1"></script>
+<script src="_framework/blazor.webassembly.js"></script>
+<script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="js/exportToPdf.js"></script>
+<script src="js/showOptions.js"></script>
+<script>navigator.serviceWorker.register('service-worker.js');</script>
+<script>
+    window.getZenContent = function (element) {
+        return element.innerHTML;
+    }
+    window.setZenContent = function (element, content) {
+        element.innerHTML = content;
+    }
+</script>
+<script>
+    window.registerCtrlS = function (dotNetHelper) {
+        window.ctrlSHandler = function (e) {
+            if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+                e.preventDefault();
+                dotNetHelper.invokeMethodAsync('SalvarViaAtalho');
+            }
         };
-        window.unregisterCtrlS = function () {
-            window.removeEventListener('keydown', window.ctrlSHandler);
+        window.addEventListener('keydown', window.ctrlSHandler);
+    };
+    window.unregisterCtrlS = function () {
+        window.removeEventListener('keydown', window.ctrlSHandler);
+    };
+</script>
+<script>
+    window.addBeforeUnloadHandler = function () {
+        window.onbeforeunload = function (e) {
+            return "Você tem alterações não salvas. Tem certeza que deseja sair?";
         };
-    </script>
+    };
+    window.removeBeforeUnloadHandler = function () {
+        window.onbeforeunload = null;
+    };
+</script>
 </body>
 
 </html>

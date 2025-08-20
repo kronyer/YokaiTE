@@ -99,7 +99,7 @@
                         <div class="card-info">
                             <span class="doc-title">@doc.Title</span>
                             <span class="doc-subtitle">
-                                Editado por último há @GetTimeAgo(doc.LastModified)
+                                @GetSubtitle(doc)
                             </span>
                         </div>
                     </div>
@@ -108,7 +108,60 @@
         }
         else
         {
-            
+            <div class="doc-grid-container">
+                <button class="grid-new-doc-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+                        <g clip-path="url(#clip0_2_559)">
+                            <path d="M18.75 21H5.25C5.05109 21 4.86032 20.921 4.71967 20.7803C4.57902 20.6397 4.5 20.4489 4.5 20.25V3.75C4.5 3.55109 4.57902 3.36032 4.71967 3.21967C4.86032 3.07902 5.05109 3 5.25 3H14.25L19.5 8.25V20.25C19.5 20.4489 19.421 20.6397 19.2803 20.7803C19.1397 20.921 18.9489 21 18.75 21Z" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M14.25 3V8.25H19.5" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M9.75 14.25H14.25" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M12 12V16.5" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round"/>
+                        </g>
+                        <defs>
+                            <clipPath id="clip0_2_559">
+                                <rect width="24" height="24" fill="white"/>
+                            </clipPath>
+                        </defs>
+                    </svg>
+                    <span>Novo arquivo</span>
+                </button>
+                <div class="grid-label-container">
+                    <span class="w-50">Nome</span>
+                    <span class="w-25">Editado por ultimo há</span>
+                    <span class="w-25">Criado há</span>
+                </div>
+                
+                @foreach (var doc in documents)
+                {
+                    <div @oncontextmenu:preventDefault="true"
+                         @onclick="(e => EditDocument(doc.Id))"
+                         @oncontextmenu="(e => ShowContextMenu(e, doc))"
+                         class="document-grid-item">
+                        <div class="grid-item-name">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                <g clip-path="url(#clip0_2_352)">
+                                    <path d="M25 28H7C6.73478 28 6.48043 27.8946 6.29289 27.7071C6.10536 27.5196 6 27.2652 6 27V5C6 4.73478 6.10536 4.48043 6.29289 4.29289C6.48043 4.10536 6.73478 4 7 4H19L26 11V27C26 27.2652 25.8946 27.5196 25.7071 27.7071C25.5196 27.8946 25.2652 28 25 28Z" stroke="#7F7F7F" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M19 4V11H26" stroke="#7F7F7F" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 17H20" stroke="#7F7F7F" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M12 21H20" stroke="#7F7F7F" stroke-linecap="round" stroke-linejoin="round"/>
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_2_352">
+                                        <rect width="32" height="32" fill="white"/>
+                                    </clipPath>
+                                </defs>
+                            </svg>
+                            <span class="doc-title-grid">@doc.Title</span>
+                        </div>
+                        <div class="grid-item-date">
+                            @GetTimeAgo(doc.LastModified)
+                        </div>
+                        <div class="grid-item-date">
+                            @GetTimeAgo(doc.CreatedAt)
+                        </div>
+                    </div>
+                }
+            </div>
         }
         
     </div>
@@ -129,10 +182,20 @@
     private int contextMenuLeft;
     private Document? selectedDocument;
     
-    private string SelectedField { get; set; } = "Data de edição";
-    private SortOrder SelectedOrder { get; set; } = SortOrder.Asc;
+    private string SelectedField { get; set; } = "Data de abertura";
+    private SortOrder SelectedOrder { get; set; } = SortOrder.Desc;
     
     private bool showRenameModal = false;
+    
+    private string GetSubtitle(Document doc)
+    {
+        return SelectedField switch
+        {
+            "Data de edição" => $"Editado por último há {GetTimeAgo(doc.LastModified)}",
+            "Data de criação" => $"Criado em {doc.CreatedAt.ToString("dd/MM/yy")}",
+            _ => $"Aberto por último há {GetTimeAgo(doc.LastOpened)}"
+        };
+    }
 
     private string GetTimeAgo(DateTime dateTime)
     {

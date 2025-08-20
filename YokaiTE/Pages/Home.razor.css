@@ -149,3 +149,62 @@
     font-weight: 700;
     line-height: normal;
 }
+
+.doc-grid-container{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+    align-self: stretch;
+    width: 100%;
+}
+
+.grid-new-doc-btn{
+    display: flex;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    background: #181818;
+    color:#f2f2f2;
+}
+
+.grid-label-container{
+    display: flex;
+    align-self: stretch;
+}
+
+.document-grid-item{
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 8px;
+}
+
+.grid-item-name{
+    gap: 24px;
+    display: flex;
+    width: 50%;
+    align-items: center;
+    gap: 24px;
+}
+
+.grid-item-date{
+    color: #5D5D5D;
+    font-family: "Cabinet Grotesk";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    width: 25%;
+    line-height: normal;
+}
+
+.doc-title-grid{
+    color: #181818;
+    font-family: "Cabinet Grotesk";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 700;
+    line-height: normal;
+}

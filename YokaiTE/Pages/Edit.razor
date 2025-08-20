@@ -86,6 +86,8 @@ else
         {
             dotNetRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("registerCtrlS", dotNetRef);
+            // await JS.InvokeVoidAsync("addBeforeUnloadHandler"); // so quando eu edito car
+
         }
 
         if (document != null && !conteudoSetado)
@@ -99,6 +101,9 @@ else
     {
         document = await DbManager.GetRecordById<long, Document>("documents", Id);
         conteudoSetado = false; // Garante que o conteúdo será setado ao renderizar
+        document.LastOpened = DateTime.Now;
+        var record = new StoreRecord<Document> { Storename = "documents", Data = document };
+        await DbManager.UpdateRecord(record);
     }
 
     private async Task Salvar()
@@ -109,6 +114,7 @@ else
         var record = new StoreRecord<Document> { Storename = "documents", Data = document };
         await DbManager.UpdateRecord(record);
         isSaved = true;
+        await JS.InvokeVoidAsync("removeBeforeUnloadHandler"); // Remove o aviso
         StateHasChanged();
         // Navigation.NavigateTo("/");
     }
@@ -119,6 +125,7 @@ else
     {
         isSaved = false;
         document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
+        await JS.InvokeVoidAsync("addBeforeUnloadHandler");
 
         debounceCts?.Cancel();
         debounceCts = new CancellationTokenSource();
