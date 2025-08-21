@@ -157,7 +157,22 @@
                             @GetTimeAgo(doc.LastModified)
                         </div>
                         <div class="grid-item-date">
-                            @GetTimeAgo(doc.CreatedAt)
+                            <span>
+                                @GetTimeAgo(doc.CreatedAt)
+
+                            </span>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
+                                <g clip-path="url(#clip0_2_281)">
+                                    <path d="M8 8.6011C8.55228 8.6011 9 8.15339 9 7.6011C9 7.04882 8.55228 6.6011 8 6.6011C7.44772 6.6011 7 7.04882 7 7.6011C7 8.15339 7.44772 8.6011 8 8.6011Z" fill="#181818" />
+                                    <path d="M8 3.6011C8.55228 3.6011 9 3.15339 9 2.6011C9 2.04882 8.55228 1.6011 8 1.6011C7.44772 1.6011 7 2.04882 7 2.6011C7 3.15339 7.44772 3.6011 8 3.6011Z" fill="#181818" />
+                                    <path d="M8 13.6011C8.55228 13.6011 9 13.1534 9 12.6011C9 12.0488 8.55228 11.6011 8 11.6011C7.44772 11.6011 7 12.0488 7 12.6011C7 13.1534 7.44772 13.6011 8 13.6011Z" fill="#181818" />
+                                </g>
+                                <defs>
+                                    <clipPath id="clip0_2_281">
+                                        <rect width="16" height="16" fill="white" />
+                                    </clipPath>
+                                </defs>
+                            </svg>
                         </div>
                     </div>
                 }

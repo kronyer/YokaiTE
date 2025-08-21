@@ -1,0 +1,18 @@
+﻿<div class="normal-input">
+    <input style="width: 100%" type="text"
+           placeholder="@Placeholder"
+           value="@Value"
+           @oninput="OnInput" />
+</div>
+
+@code {
+    [Parameter] public string? Value { get; set; }
+    [Parameter] public EventCallback<string?> ValueChanged { get; set; }
+    [Parameter] public string Placeholder { get; set; } = "Pesquisar";
+
+    private async Task OnInput(ChangeEventArgs e)
+    {
+        Value = e.Value?.ToString();
+        await ValueChanged.InvokeAsync(Value);
+    }
+}

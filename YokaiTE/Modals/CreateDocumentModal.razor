@@ -20,13 +20,15 @@
                 </svg>
             </div>
             <div class="first-input-row">
-                <MudTextField ShrinkLabel @bind-Value="Title" Placeholder="Titulo" Variant="Variant.Text"></MudTextField>
-                <MudSelect @bind-Value="BackgroundColor">
-                    @* @foreach (var state in _states)
-                    {
-                        <MudSelectItem Value="state">@state</MudSelectItem>
-                    } *@
-                </MudSelect>
+                <div style="width:65%">
+                <NormalInput Placeholder="Titulo" Value="@Title" ValueChanged="OnTitleChanged"></NormalInput>
+                </div>
+                <div style="width:35%">
+                    <ColorSelect Label="Cor"
+                                 Options="ColorOptions"
+                                 @bind-Value="BackgroundColor" />
+                </div>
+               
             </div>
             <div class="w-100">
                 <NormalSelect Label="Idioma"
@@ -50,7 +52,7 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback<Document> OnSave { get; set; }
-    
+
     private List<NormalSelect.SelectOption> IdiomaOptions =
     [
         new("pt-BR","pt-BR"),
@@ -58,11 +60,34 @@
         new("es-ES","es-ES")
     ];
 
+    private List<NormalSelect.SelectOption> ColorOptions = new()
+{
+    new("#F2F2F2", "Branco"),
+    new("#EDE7D5", "Aramelo Claro"),
+    new("#D5E5ED", "Azul Claro"),
+    new("#EDD5DB", "Vermelho Claro"),
+    new("#D5EDD5", "Verde Claro"),
+    new("#E9D5ED", "Rosa Claro"),
+
+    new("#1F1F1F", "Marrom Escuro"),
+    new("#2F1706", "Marrom Claro"),
+    new("#06212F", "Azul Marinho"),
+    new("#300612", "Vinho"),
+    new("#032503", "Verde Escuro"),
+    new("#2C0633", "Roxo"),
+};
+
     private string Title { get; set; } = string.Empty;
     private string Language { get; set; } = string.Empty;
-    private string BackgroundColor { get; set; } = string.Empty;
+    private string BackgroundColor { get; set; }
     private bool ParseMarkdown;
     private bool PageBreak;
+
+    private void OnInitialize()
+    {
+        BackgroundColor = "#f2f2f2";
+    }
+
     private async Task OnConfirm()
     {
         await OnSave.InvokeAsync(new Document
@@ -77,5 +102,10 @@
     private async Task OnCancel()
     {
         await VisibleChanged.InvokeAsync(false);
+    }
+
+    private void OnTitleChanged(string title)
+    {
+        Title = title;
     }
 }

@@ -1,0 +1,36 @@
+﻿.normal-input {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 0 7px;
+    width: 100%;
+    border-bottom: 1px solid #D7D7D7;
+    transition: border-bottom-color 0.3s, border-bottom-width 0.3s ease-in-out;
+    background: #E6E6E6;
+}
+
+    .normal-input:focus-within {
+        border-bottom: 1px solid #181818;
+    }
+
+    .normal-input svg {
+        flex-shrink: 0;
+        width: 16px;
+        height: 16px;
+    }
+
+    .normal-input input {
+        flex: 1;
+        border: none;
+        outline: none;
+        background: #f2f2f2;
+        height: 100%;
+        color: #4C4C4C;
+        font-family: "Cabinet Grotesk", sans-serif;
+        font-size: 16px;
+        font-style: normal;
+        font-weight: 400;
+        line-height: normal;
+        background: #E6E6E6;
+        padding: 0px 16px;
+    }

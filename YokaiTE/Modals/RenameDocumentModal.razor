@@ -18,13 +18,11 @@
             </svg>
         </div>
         <div class="w-100">
-            <div class="search-input">
-                <input placeholder="Nome..." type="text" @bind="Document.Title" />
-            </div>
+            <YokaiTE.Component.NormalInput Value="@Document.Title" ValueChanged="OnTitleChanged"></YokaiTE.Component.NormalInput>
         </div>
         <div class="button-container">
             <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
-            <button @onclick="Rename" class="confirm-btn">Criar</button>
+            <button @onclick="Rename" class="confirm-btn">Renomear</button>
         </div>
     </div>
 </div>
@@ -39,9 +37,14 @@
         await DbManager.UpdateRecord(new StoreRecord<Document> { Storename = "documents", Data = Document });
         await OnClose.InvokeAsync();
     }
-    
+
     private async Task OnCancel()
     {
         await OnClose.InvokeAsync();
+    }
+
+    private void OnTitleChanged(string title)
+    {
+        Document.Title = title;
     }
 }

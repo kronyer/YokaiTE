@@ -1,0 +1,63 @@
+.color-dot {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    border-radius: 2px;
+    border: 1px solid #181818;
+    background: #F2F2F2;
+    width: 24px;
+    height: 24px;
+    aspect-ratio: 1/1;
+}
+
+.color-dot-label {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    vertical-align: middle;
+    border-radius: 2px;
+    border: 1px solid #181818;
+    background: #F2F2F2;
+    width: 20px;
+    height: 20px;
+    aspect-ratio: 1/1;
+}
+
+
+.color-select {
+    position: relative;
+}
+
+.color-select__control {
+    border-bottom: 1px solid #D7D7D7;
+    padding: 6px 0 7px;
+    width:100%;
+    justify-content:space-between;
+}
+
+.color-select__menu {
+    display: inline-flex;
+    padding: 10px;
+    flex-direction: row;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--dropdown-border);
+    background: var(--dropdown-color);
+    width: 100%;
+    flex-wrap: wrap;
+    position:absolute;
+    left:0;
+    top:40px;
+    z-index:999;
+}
+
+.color-select__item{
+    cursor:pointer;
+}
+
+.color-select__item:hover {
+    transform: scale(1.1);
+}

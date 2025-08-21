@@ -1,0 +1,6 @@
+﻿namespace YokaiTE.wwwroot.svg
+{
+    public class logo
+    {
+    }
+}

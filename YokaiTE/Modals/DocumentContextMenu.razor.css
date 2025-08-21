@@ -1,17 +1,16 @@
 ﻿.context-menu-modal {
     position: fixed;
-    background: #fff;
+    background: var(--dropdown-color);
     border-radius: 8px;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
     padding: 8px 0;
     z-index: 10001;
     min-width: 140px;
-
     display: flex;
     width: 127px;
     flex-direction: column;
     align-items: flex-start;
     gap: 1px;
+    border: var(--dropdown-border);
 }
 
 .modal-back{
@@ -20,7 +19,6 @@
     position: fixed;
     top: 0;
     left: 0;
-    background: rgba(0,0,0,0.5);
     z-index: 10000;
 }
 
