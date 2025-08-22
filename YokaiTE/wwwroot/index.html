@@ -74,6 +74,20 @@
         window.onbeforeunload = null;
     };
 </script>
+    <script>
+        window.applyBold = function () {
+            document.execCommand('bold');
+        };
+        window.applyItalic = function () {
+            document.execCommand('italic');
+        };
+        window.applyUnderline = function () {
+            document.execCommand('underline');
+        };
+        window.applyStrikethrough = function () {
+            document.execCommand('strikeThrough');
+        };
+    </script>
 </body>
 
 </html>

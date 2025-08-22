@@ -3,9 +3,11 @@
 @using QuestPDF.Fluent;
 @using QuestPDF.Infrastructure;
 @using Document = YokaiTE.Document
+@using YokaiTE.Component
 @inject IndexedDBManager DbManager
 @inject NavigationManager Navigation
 @implements IAsyncDisposable
+
 <PageTitle>Editar Documento</PageTitle>
 
 @if (document == null)
@@ -14,43 +16,38 @@
 }
 else
 {
-    <div class="top-menu">
-        <button class="btn-top-menu">Salvar</button>
-        <div class="export-container" @onclick="() => showExport = true" >
-            <button class="btn-top-menu">Exportar</button>
-            @if (showExport)
-            {
-                <div class="export-options">
-                    <button @onclick="ExportPdf">Exportar para PDF</button>
-                    <button @onclick="ExportMd">Exportar para MD</button>
-                    <button @onclick="ExportYk">Exportar para YK</button>
-                </div>
-            }
-        </div>
-        <button>Salvar</button>
-    </div>
+    <EditToolbar 
+    Document="document"
+    IsSaved="isSaved"
+    BackHome="BackHome"
+    TitleChanged="SaveTitleEdit"
+    SelectedFont="selectedFont"
+    SelectedFontChanged="OnSelectedFont"
+    OnBold="ApplyBoldAsync"
+    OnItalic="ApplyItalicAsync"
+    OnUnderline="ApplyUnderline"
+    OnStrikeThrough="ApplyStrikethrough"/>
     <div class="edit-page">
-        <div style="position:relative">
-            <input @bind-value="document.Title" @bind-value:event="oninput" placeholder="Título" class="zen-title"/>
-            @if (!isSaved)
-            {
-                <span class="non-saved-icon">*</span>
-            }
-        </div>
-
         <div class="zen-editor"
              contenteditable="true"
              @oninput="OnContentChanged"
-             @ref="editorDiv">
+             @ref="editorDiv"
+             style="background:@(document?.BackgroundColor ?? "#F2F2F2")">
+            >
         </div>
-
-        <button @onclick="Salvar">Salvar</button>
     </div>
+    <DocInfoFooter CharCount="charCount" WordCount="wordCount" ByteCount="savedDocSize" />
 }
 
 @code {
     [Parameter] public long Id { get; set; }
 
+    private int charCount => string.IsNullOrEmpty(document?.Content)
+        ? 0
+        : System.Net.WebUtility.HtmlDecode(
+            System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
+          ).Length; private int wordCount => string.IsNullOrWhiteSpace(document?.Content) ? 0 : document.Content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+    private int savedDocSize = 0;
     private Document document;
     private ElementReference editorDiv;
 
@@ -60,24 +57,39 @@ else
 
     private DotNetObjectReference<Edit> dotNetRef;
 
+    private bool isEditingTitle = false;
     bool isSaved = true;
 
-    bool showExport = false;
+    // bool showExport = false;
+
+    private string selectedFont = string.Empty;
+
+    private async Task SaveTitleEdit(string editTitle)
+    {
+        if (!string.IsNullOrWhiteSpace(editTitle) && document != null)
+        {
+            document.Title = editTitle;
+            await Salvar();
+        }
+        isEditingTitle = false;
+        StateHasChanged();
+    }
+
+    private int GetDocumentSizeInBytes()
+    {
+        if (document == null)
+            return 0;
+
+        var json = System.Text.Json.JsonSerializer.Serialize(document);
+
+        return System.Text.Encoding.UTF8.GetByteCount(json);
+    }
+
 
     private async void ExportPdf()
     {
         if (document == null) return;
         await JS.InvokeVoidAsync("exportPdfJs", document.Title, document.Content ?? "");
-    }
-
-    private void ExportMd()
-    {
-        /* lógica de exportação MD */
-    }
-
-    private void ExportYk()
-    {
-        /* lógica de exportação YK */
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -86,8 +98,6 @@ else
         {
             dotNetRef = DotNetObjectReference.Create(this);
             await JS.InvokeVoidAsync("registerCtrlS", dotNetRef);
-            // await JS.InvokeVoidAsync("addBeforeUnloadHandler"); // so quando eu edito car
-
         }
 
         if (document != null && !conteudoSetado)
@@ -104,6 +114,9 @@ else
         document.LastOpened = DateTime.Now;
         var record = new StoreRecord<Document> { Storename = "documents", Data = document };
         await DbManager.UpdateRecord(record);
+
+        savedDocSize = GetDocumentSizeInBytes();
+
     }
 
     private async Task Salvar()
@@ -114,9 +127,9 @@ else
         var record = new StoreRecord<Document> { Storename = "documents", Data = document };
         await DbManager.UpdateRecord(record);
         isSaved = true;
+        savedDocSize = GetDocumentSizeInBytes();
         await JS.InvokeVoidAsync("removeBeforeUnloadHandler"); // Remove o aviso
         StateHasChanged();
-        // Navigation.NavigateTo("/");
     }
 
     private CancellationTokenSource debounceCts;
@@ -135,7 +148,7 @@ else
         {
             try
             {
-                await Task.Delay(5000, token);
+                await Task.Delay(1000, token);
                 if (!token.IsCancellationRequested)
                 {
                     await InvokeAsync(Salvar);
@@ -160,4 +173,34 @@ else
     }
 
     [Inject] IJSRuntime JS { get; set; }
+
+    private void OnSelectedFont(string font)
+    {
+        selectedFont = font;
+    }
+
+    private void BackHome()
+    {
+        Salvar();
+        Navigation.NavigateTo("/");
+    }
+    private async Task ApplyBoldAsync()
+    {
+        await JS.InvokeVoidAsync("applyBold");
+    }
+    private async Task ApplyItalicAsync()
+    {
+        await JS.InvokeVoidAsync("applyItalic");
+    }
+
+    private async Task ApplyUnderline()
+    {
+        await JS.InvokeVoidAsync("applyUnderline");
+    }
+
+    private async Task ApplyStrikethrough()
+    {
+        await JS.InvokeVoidAsync("applyStrikethrough");
+    }
+
 }

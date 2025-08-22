@@ -1,0 +1,20 @@
+<div class="doc-info-footer">
+    <div class="info-text-container">
+        <span class="info-label">Caracteres</span>
+        <span class="info-value">@CharCount</span>
+    </div>
+    <div class="info-text-container">
+        <span class="info-label">Palavras</span>
+        <span class="info-value">@WordCount</span>
+    </div>
+    <div class="info-text-container">
+        <span class="info-label">Bytes</span>
+        <span class="info-value">@ByteCount</span>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int CharCount { get; set; }
+    [Parameter] public int WordCount { get; set; }
+    [Parameter] public int ByteCount { get; set; }
+}

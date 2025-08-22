@@ -26,7 +26,7 @@
                 <div style="width:35%">
                     <ColorSelect Label="Cor"
                                  Options="ColorOptions"
-                                 @bind-Value="BackgroundColor" />
+                                 @bind-Value="SelectedColor" />
                 </div>
                
             </div>
@@ -63,7 +63,7 @@
     private List<NormalSelect.SelectOption> ColorOptions = new()
 {
     new("#F2F2F2", "Branco"),
-    new("#EDE7D5", "Aramelo Claro"),
+    new("#EDE7D5", "Amarelo Claro"),
     new("#D5E5ED", "Azul Claro"),
     new("#EDD5DB", "Vermelho Claro"),
     new("#D5EDD5", "Verde Claro"),
@@ -79,13 +79,13 @@
 
     private string Title { get; set; } = string.Empty;
     private string Language { get; set; } = string.Empty;
-    private string BackgroundColor { get; set; }
+    private string SelectedColor { get; set; }
     private bool ParseMarkdown;
     private bool PageBreak;
 
     private void OnInitialize()
     {
-        BackgroundColor = "#f2f2f2";
+        SelectedColor = "#f2f2f2";
     }
 
     private async Task OnConfirm()
@@ -94,7 +94,8 @@
         {
             Title = Title,
             CreatedAt = DateTime.Now,
-            LastModified = DateTime.Now
+            LastModified = DateTime.Now,
+            BackgroundColor = SelectedColor
         });
         await VisibleChanged.InvokeAsync(false);
     }

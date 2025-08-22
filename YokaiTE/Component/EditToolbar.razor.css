@@ -1,0 +1,82 @@
+﻿
+.document-edit-top {
+    position: sticky;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.doc-edit-top-nav {
+    display: flex;
+    padding: 16px 32px;
+    justify-content: space-between;
+    align-items: center;
+    align-self: stretch;
+    border-bottom: 1px solid #D2D2D2;
+}
+
+.doc-edit-top-left {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+}
+
+.file-name-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.file-name {
+    color: #181818;
+    font-family: "Cabinet Grotesk";
+    font-size: 24px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 280px;
+}
+
+.doc-edit-right {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.saved-span {
+    color: #0B60DF;
+    font-family: "Cabinet Grotesk";
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 500;
+    line-height: normal;
+}
+
+.toolbar-top-container {
+    display: flex;
+    padding: 8px 32px;
+    align-items: center;
+    gap: 24px;
+    align-self: stretch;
+}
+
+.font-toolbar {
+    display: flex;
+    width: 464px;
+    align-items: flex-start;
+    gap: 24px;
+}
+
+.style-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+
+.style-btn {
+    fill: #E6E6E6;
+}

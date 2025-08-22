@@ -1,0 +1,23 @@
+// ZenEditor.razor
+<div class="zen-editor"
+     contenteditable="true"
+     @ref="editorDiv"
+     @oninput="OnInput">
+</div>
+
+@code {
+    private ElementReference editorDiv;
+
+    public ElementReference EditorDiv => editorDiv;
+
+    [Parameter] public string Content { get; set; }
+    [Parameter] public EventCallback<string> ContentChanged { get; set; }
+
+    [Inject] IJSRuntime JS { get; set; }
+
+    private async Task OnInput()
+    {
+        var content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
+        await ContentChanged.InvokeAsync(content);
+    }
+}

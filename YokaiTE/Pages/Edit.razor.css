@@ -12,9 +12,9 @@
 }
 
 .zen-editor {
-    width:50%;
-    margin:auto;
-    min-height: 300px;
+    width: 100%;
+    margin: auto;
+    min-height: calc(100vh - 114px);
     font-size: 1.2em;
     outline: none;
     border: none;
@@ -23,6 +23,9 @@
     color: #222;
     line-height: 1.6;
     margin-bottom: 2em;
+    max-height: calc(100vh - 114px);
+    overflow: scroll;
+    padding-inline: 25%;
 }
 
 .top-menu{

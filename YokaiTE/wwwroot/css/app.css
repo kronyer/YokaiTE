@@ -118,3 +118,32 @@ code {
 .form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
     text-align: start;
 }
+
+.confirm-btn {
+    display: flex;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    background: #181818;
+    color: #f2f2f2;
+}
+
+    .confirm-btn:hover {
+        background: #2A2A2A;
+    }
+
+.cancel-btn {
+    display: flex;
+    padding: 8px 16px;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    border-radius: 8px;
+    border: 1px solid #181818;
+}
+
+    .cancel-btn:hover {
+        background: #EAEAEA;
+    }
