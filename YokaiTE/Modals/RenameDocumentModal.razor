@@ -1,24 +1,17 @@
 ﻿@using TG.Blazor.IndexedDB
+@using YokaiTE.Component
 @inject IndexedDBManager DbManager
 
 <div class="modal-back">
     <div class="modal">
         <div class="modal-top-container">
             <h1 class="modal-name">Renomear arquivo</h1>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                <g clip-path="url(#clip0_2_642)">
-                    <path d="M12.5 3.5L3.5 12.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    <path d="M12.5 12.5L3.5 3.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                </g>
-                <defs>
-                    <clipPath id="clip0_2_642">
-                        <rect width="16" height="16" fill="white" />
-                    </clipPath>
-                </defs>
-            </svg>
+            <button @onclick="OnCancel">
+                <img src="svg/close.svg" width="16" height="16" alt="Fechar"/>
+            </button>
         </div>
         <div class="w-100">
-            <YokaiTE.Component.NormalInput Value="@Document.Title" ValueChanged="OnTitleChanged"></YokaiTE.Component.NormalInput>
+            <NormalInput Value="@Document.Title" ValueChanged="OnTitleChanged"></NormalInput>
         </div>
         <div class="button-container">
             <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
@@ -30,7 +23,6 @@
 @code {
     [Parameter] public Document Document { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
-
 
     private async Task Rename()
     {

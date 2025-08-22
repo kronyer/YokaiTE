@@ -5,72 +5,57 @@
         <span class="opt-span">
             @(Value ?? "Selecione...")
         </span>
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-            <g clip-path="url(#clip0_2_150)">
-                <path d="M13 6L8 11L3 6" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-            </g>
-            <defs>
-                <clipPath id="clip0_2_150">
-                    <rect width="16" height="16" fill="white" />
-                </clipPath>
-            </defs>
-        </svg> 
+        <img src="svg/arrow_down.svg" width="16" height="16" alt="Expandir"/>
     </button>
     @if (isOpen)
     {
         <div class="dropdown-select">
-        <div class="group">
-            <div class="label">Ordenar por:</div>
-            @foreach (var option in Options)
-            {
-                <div class="item @(Value == option ? "active" : null)"
-                     @onclick="() => OnValueChange(option)">
+            <div class="group">
+                <div class="label">Ordenar por:</div>
+                @foreach (var option in Options)
+                {
+                    <div class="item @(Value == option ? "active" : null)"
+                         @onclick="() => OnValueChange(option)">
                         @if (Value == option)
                         {
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                                <path d="M2.5 9L6 12.5L14 4.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                            </svg>
+                            <img src="svg/check.svg" width="16" height="16" alt="Selecionado"/>
                         }
                         else
                         {
                             <div class="invisible-check"></div>
                         }
                         <span class="opt-span">@option</span>
-                </div>
-            }
-        </div>
+                    </div>
+                }
+            </div>
 
-        <div class="group">
-            <div class="label">Ordem:</div>
-            <div class="item @(Order == SortOrder.Asc ? "active" : null)"
-                 @onclick="() => OnOrderChange(SortOrder.Asc)">
+            <div class="group">
+                <div class="label">Ordem:</div>
+                <div class="item @(Order == SortOrder.Asc ? "active" : null)"
+                     @onclick="() => OnOrderChange(SortOrder.Asc)">
                     @if (Order == SortOrder.Asc)
                     {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M2.5 9L6 12.5L14 4.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <img src="svg/check.svg" width="16" height="16" alt="Selecionado"/>
                     }
                     else
                     {
                         <div class="invisible-check"></div>
                     }
                     <span class="opt-span">Crescente</span>
-            </div>
-            <div class="item @(Order == SortOrder.Desc ? "active" : null)"
-                 @onclick="() => OnOrderChange(SortOrder.Desc)">
+                </div>
+                <div class="item @(Order == SortOrder.Desc ? "active" : null)"
+                     @onclick="() => OnOrderChange(SortOrder.Desc)">
                     @if (Order == SortOrder.Desc)
                     {
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                            <path d="M2.5 9L6 12.5L14 4.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                        <img src="svg/check.svg" width="16" height="16" alt="Selecionado"/>
                     }
                     else
                     {
                         <div class="invisible-check"></div>
                     }
                     <span class="opt-span">Decrescente</span>
+                </div>
             </div>
-        </div>
         </div>
     }
 </div>
@@ -87,7 +72,7 @@
     private bool isOpen = false;
 
     private void ToggleOpen() => isOpen = !isOpen;
-    
+
     private async Task OnValueChange(string v)
     {
         if (Value != v)
@@ -105,5 +90,6 @@
             await OrderChanged.InvokeAsync(o);
         }
     }
+
 }
 

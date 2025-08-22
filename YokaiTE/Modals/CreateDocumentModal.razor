@@ -7,37 +7,29 @@
         <div class="modal">
             <div class="modal-top-container">
                 <span class="modal-name">Criar novo arquivo</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
-                    <g clip-path="url(#clip0_2_642)">
-                        <path d="M12.5 3.5L3.5 12.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M12.5 12.5L3.5 3.5" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_2_642">
-                            <rect width="16" height="16" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+                <button @onclick="OnCancel">
+                    <img src="svg/close.svg" width="16" height="16" alt="Fechar"/>
+                </button>
             </div>
             <div class="first-input-row">
                 <div style="width:65%">
-                <NormalInput Placeholder="Titulo" Value="@Title" ValueChanged="OnTitleChanged"></NormalInput>
+                    <NormalInput Placeholder="Titulo" Value="@Title" ValueChanged="OnTitleChanged"></NormalInput>
                 </div>
                 <div style="width:35%">
                     <ColorSelect Label="Cor"
                                  Options="ColorOptions"
-                                 @bind-Value="SelectedColor" />
+                                 @bind-Value="SelectedColor"/>
                 </div>
-               
+
             </div>
             <div class="w-100">
                 <NormalSelect Label="Idioma"
-                               Options="IdiomaOptions"
-                               @bind-Value="Language" />
+                              Options="IdiomaOptions"
+                              @bind-Value="Language"/>
             </div>
             <div class="switch-container">
-                <NormalSwitch Label="Quebra de página" @bind-Value="PageBreak" />
-                <NormalSwitch Label="Interpretar markdown" @bind-Value="ParseMarkdown" />
+                <NormalSwitch Label="Quebra de página" @bind-Value="PageBreak"/>
+                <NormalSwitch Label="Interpretar markdown" @bind-Value="ParseMarkdown"/>
 
             </div>
             <div class="button-container">
@@ -55,27 +47,27 @@
 
     private List<NormalSelect.SelectOption> IdiomaOptions =
     [
-        new("pt-BR","pt-BR"),
-        new("en-US","en-US"),
-        new("es-ES","es-ES")
+        new("pt-BR", "pt-BR"),
+        new("en-US", "en-US"),
+        new("es-ES", "es-ES")
     ];
 
     private List<NormalSelect.SelectOption> ColorOptions = new()
-{
-    new("#F2F2F2", "Branco"),
-    new("#EDE7D5", "Amarelo Claro"),
-    new("#D5E5ED", "Azul Claro"),
-    new("#EDD5DB", "Vermelho Claro"),
-    new("#D5EDD5", "Verde Claro"),
-    new("#E9D5ED", "Rosa Claro"),
+    {
+        new("#F2F2F2", "Branco"),
+        new("#EDE7D5", "Amarelo Claro"),
+        new("#D5E5ED", "Azul Claro"),
+        new("#EDD5DB", "Vermelho Claro"),
+        new("#D5EDD5", "Verde Claro"),
+        new("#E9D5ED", "Rosa Claro"),
 
-    new("#1F1F1F", "Marrom Escuro"),
-    new("#2F1706", "Marrom Claro"),
-    new("#06212F", "Azul Marinho"),
-    new("#300612", "Vinho"),
-    new("#032503", "Verde Escuro"),
-    new("#2C0633", "Roxo"),
-};
+        new("#1F1F1F", "Marrom Escuro"),
+        new("#2F1706", "Marrom Claro"),
+        new("#06212F", "Azul Marinho"),
+        new("#300612", "Vinho"),
+        new("#032503", "Verde Escuro"),
+        new("#2C0633", "Roxo"),
+    };
 
     private string Title { get; set; } = string.Empty;
     private string Language { get; set; } = string.Empty;
@@ -109,4 +101,5 @@
     {
         Title = title;
     }
+
 }
