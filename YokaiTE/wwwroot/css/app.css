@@ -1,9 +1,10 @@
 :root {
     --mud-palette-primary: #000 !important;
     font-family: "Cabinet Grotesk" !important;
-
     --dropdown-color: #EFF2F5;
     --dropdown-border: #D7D7D7;
+    --background-light: #E6E6E6;
+    --black-font: #181818;
 }
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
@@ -147,3 +148,36 @@ code {
     .cancel-btn:hover {
         background: #EAEAEA;
     }
+
+.editor-wrap {
+    position: relative;
+}
+
+.zen-editor {
+    position: relative;
+    white-space: pre-wrap;
+    z-index: 1;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.editor-wrap {
+    position: relative;
+}
+
+.zen-editor {
+    position: relative;
+    overflow: auto;
+    white-space: pre-wrap;
+}
+
+.overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+}

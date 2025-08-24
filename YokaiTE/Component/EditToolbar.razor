@@ -34,153 +34,46 @@
     <div class="toolbar-top-container">
         <div class="font-toolbar w-25">
             <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="SelectedFontChanged" Value="selectedFont"></NormalSelect>
-            <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="SelectedFontChanged" Value="selectedFont"></NormalSelect>
+            <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="SelectedFontSizeChanged" Value="selectedFontSize"></NormalSelect>
         </div>
         <div class="style-toolbar w-75">
-            <button class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_2_793)">
-                        <path d="M15 13.125L10 2.5L5 13.125" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M13.5297 10H6.47034" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 16.875H16.875" stroke="#181818" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_2_793">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button class="style-btn @(false ? "active" : "")">
+                <img src="svg/font_color.svg" alt="Font Color" />
             </button>
-            <button class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_3_852)">
-                        <rect width="20" height="20" rx="4" fill="#181818" />
-                        <path d="M15 15.625L10 5L5 15.625" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M13.5297 12.5H6.47034" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_3_852">
-                            <rect width="20" height="20" rx="4" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button class="style-btn @(false ? "active" : "")">
+                <img src="svg/font_highlight.svg" alt="Font Hightlight" />
             </button>
             <div style="width: 1px;
     height: 20px; background: #BABABA;"></div>
-            <button @onclick="OnBold" class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_2_767)">
-                        <path d="M6.25 9.375H12.5C13.3288 9.375 14.1237 9.70424 14.7097 10.2903C15.2958 10.8763 15.625 11.6712 15.625 12.5C15.625 13.3288 15.2958 14.1237 14.7097 14.7097C14.1237 15.2958 13.3288 15.625 12.5 15.625H6.25V3.75H11.5625C12.3084 3.75 13.0238 4.04632 13.5512 4.57376C14.0787 5.10121 14.375 5.81658 14.375 6.5625C14.375 7.30842 14.0787 8.02379 13.5512 8.55124C13.0238 9.07868 12.3084 9.375 11.5625 9.375" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_2_767">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick="OnBold" class="style-btn @(IsBold ? "active" : "")">
+                <img src="svg/bold.svg" alt="Font Hightlight" />
             </button>
-            <button @onclick="OnItalic" class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_2_770)">
-                        <path d="M11.875 4.375L8.125 15.625" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M5 15.625H11.25" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M8.75 4.375H15" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_2_770">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick="OnItalic" class="style-btn @(IsItalic ? "active" : "")">
+                <img src="svg/italic.svg" alt="Font Hightlight" />
+                
             </button>
-            <button @onclick="OnStrikeThrough" class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_2_775)">
-                        <path d="M3.125 10H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M5.96328 7.5C5.89871 7.298 5.86654 7.08706 5.86797 6.875C5.86797 5.14922 7.58671 3.75 10 3.75C11.7969 3.75 13.1437 4.52109 13.75 5.625" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M5.625 13.125C5.625 14.8508 7.58359 16.25 10 16.25C12.4164 16.25 14.375 14.8508 14.375 13.125C14.375 11.268 12.6859 10.5469 10.8125 10" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_2_775">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick="OnStrikeThrough" class="style-btn @(IsStrikeThrough ? "active" : "")">
+                <img src="svg/strikethrough.svg" alt="Font Hightlight" />
             </button>
-            <button @onclick="OnUnderline" class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_2_780)">
-                        <path d="M5 17.5H15" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M14.375 4.375V10.625C14.375 11.7853 13.9141 12.8981 13.0936 13.7186C12.2731 14.5391 11.1603 15 10 15C8.83968 15 7.72688 14.5391 6.90641 13.7186C6.08594 12.8981 5.625 11.7853 5.625 10.625V4.375" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_2_780">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick="OnUnderline" class="style-btn @(IsUnderline ? "active" : "")">
+                <img src="svg/underline.svg" alt="Font Hightlight" />
             </button>
             <div style="width: 1px;
         height: 20px; background: #BABABA;"></div>
-            <button class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_3_813)">
-                        <path d="M3.125 5H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M5 8.125H15" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 11.25H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M5 14.375H15" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_3_813">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")' class="style-btn @(false ? "active" : "")">
+                <img src="svg/center.svg" alt="Font Hightlight" />
             </button>
-            <button class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_3_819)">
-                        <path d="M3.125 5H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 8.125H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 11.25H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 14.375H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_3_819">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")' class="style-btn @(false ? "active" : "")">
+                <img src="svg/justify.svg" alt="Font Hightlight" />
             </button>
-            <button class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_3_825)">
-                        <path d="M3.125 5H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 8.125H13.125" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 11.25H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 14.375H13.125" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_3_825">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")' class="style-btn @(false ? "active" : "")">
+                <img src="svg/left.svg" alt="Font Hightlight" />
+               
             </button>
-            <button class="style-btn">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 20 20" fill="none">
-                    <g clip-path="url(#clip0_3_831)">
-                        <path d="M3.125 5H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6.875 8.125H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M3.125 11.25H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                        <path d="M6.875 14.375H16.875" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-                    </g>
-                    <defs>
-                        <clipPath id="clip0_3_831">
-                            <rect width="20" height="20" fill="white" />
-                        </clipPath>
-                    </defs>
-                </svg>
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")' class="style-btn @(false ? "active" : "")">
+                <img src="svg/right.svg" alt="Font Hightlight" />
+
+                
             </button>
         </div>
     </div>
@@ -193,11 +86,16 @@
     [Parameter] public EventCallback<string> TitleChanged { get; set; }
     [Parameter] public string SelectedFont { get; set; }
     [Parameter] public EventCallback<string> SelectedFontChanged { get; set; }
+    [Parameter] public EventCallback<string> SelectedFontSizeChanged { get; set; }
     private bool isEditingTitle = false;
     [Parameter] public EventCallback OnBold { get; set; }
     [Parameter] public EventCallback OnItalic { get; set; }
     [Parameter] public EventCallback OnStrikeThrough { get; set; }
     [Parameter] public EventCallback OnUnderline { get; set; }
+    [Parameter] public bool IsBold { get; set; }
+    [Parameter] public bool IsItalic { get; set; }
+    [Parameter] public bool IsUnderline { get; set; }
+    [Parameter] public bool IsStrikeThrough { get; set; }
     private string EditTitle = "";
 
     private List<YokaiTE.Component.NormalSelect.SelectOption> possibleFonts = new()
@@ -205,6 +103,43 @@
     new("Arial", "Arial"),
     new("Times New Roman", "Times New Roman")
 };
+
+    [Parameter] public EventCallback<string> OnFontColorChanged { get; set; }
+    [Parameter] public EventCallback<string> OnHighlightColorChanged { get; set; }
+    [Parameter] public EventCallback<string> OnFontSizeChanged { get; set; }
+    [Parameter] public EventCallback<string> OnFontFamilyChanged { get; set; }
+    [Parameter] public EventCallback<string> OnTextAlignChanged { get; set; }
+
+    private string selectedFontColor = "#000000";
+    private string selectedHighlightColor = "#FFFF00";
+    private string selectedFontSize = "3";
+    private string selectedFont = "Arial";
+
+    private List<NormalSelect.SelectOption> possibleFontSizes = new()
+    {
+        new("Pequeno", "2"),
+        new("Normal", "3"),
+        new("Grande", "5"),
+        new("Enorme", "7")
+    };
+
+    private List<NormalSelect.SelectOption> fontColors = new()
+    {
+        new("Preto", "#000000"),
+        new("Vermelho", "#FF0000"),
+        new("Azul", "#0000FF"),
+        new("Verde", "#00FF00"),
+        new("Amarelo", "#FFFF00")
+    };
+
+    private List<NormalSelect.SelectOption> highlightColors = new()
+    {
+        new("Amarelo", "#FFFF00"),
+        new("Verde", "#00FF00"),
+        new("Ciano", "#00FFFF"),
+        new("Rosa", "#FF00FF"),
+        new("Nenhum", "#FFFFFF")
+    };
 
     private void EnableTitleEdit()
     {

@@ -1,14 +1,19 @@
-﻿<div class="normal-input">
+﻿<div class="normal-input @(!string.IsNullOrWhiteSpace(Error) ? "error" : "")">
     <input style="width: 100%" type="text"
            placeholder="@Placeholder"
            value="@Value"
            @oninput="OnInput" />
+    @if (!string.IsNullOrWhiteSpace(Error))
+    {
+        <span class="input-error">@Error</span>
+    }
 </div>
 
 @code {
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string Placeholder { get; set; } = "Pesquisar";
+    [Parameter] public string? Error { get; set; }
 
     private async Task OnInput(ChangeEventArgs e)
     {

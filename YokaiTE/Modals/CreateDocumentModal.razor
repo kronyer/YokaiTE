@@ -12,10 +12,10 @@
                 </button>
             </div>
             <div class="first-input-row">
-                <div style="width:65%">
-                    <NormalInput Placeholder="Titulo" Value="@Title" ValueChanged="OnTitleChanged"></NormalInput>
+                <div style="width:60%">
+                    <NormalInput Placeholder="Título" Value="@Title" ValueChanged="OnTitleChanged" Error="@TitleError"></NormalInput>
                 </div>
-                <div style="width:35%">
+                <div style="width:40%">
                     <ColorSelect Label="Cor"
                                  Options="ColorOptions"
                                  @bind-Value="SelectedColor"/>
@@ -44,6 +44,8 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback<Document> OnSave { get; set; }
+
+    private string TitleError { get; set; } = string.Empty;
 
     private List<NormalSelect.SelectOption> IdiomaOptions =
     [
@@ -82,6 +84,12 @@
 
     private async Task OnConfirm()
     {
+
+        if (!ValidateInputs())
+        {
+            return;
+        }
+
         await OnSave.InvokeAsync(new Document
         {
             Title = Title,
@@ -90,6 +98,17 @@
             BackgroundColor = SelectedColor
         });
         await VisibleChanged.InvokeAsync(false);
+    }
+
+    private bool ValidateInputs()
+    {
+        if (string.IsNullOrEmpty(Title))
+        {
+            TitleError = "O título é obrigatório";
+            return false;
+        }
+
+        return true;
     }
 
     private async Task OnCancel()

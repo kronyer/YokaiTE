@@ -7,7 +7,13 @@
     border-bottom: 1px solid #D7D7D7;
     transition: border-bottom-color 0.3s, border-bottom-width 0.3s ease-in-out;
     background: #E6E6E6;
+    position:relative;
 }
+
+    .normal-input.error {
+        border-bottom: 1px solid #d32f2f;
+    }
+
 
     .normal-input:focus-within {
         border-bottom: 1px solid #181818;
@@ -34,3 +40,13 @@
         background: #E6E6E6;
         padding: 0px 16px;
     }
+
+.input-error {
+    position:absolute;
+    left:16px;
+    top:100%;
+    color: #d32f2f;
+    font-size: 0.9em;
+    margin-top: 4px;
+    display: block;
+}

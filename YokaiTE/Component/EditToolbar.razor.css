@@ -4,6 +4,7 @@
     top: 0;
     left: 0;
     width: 100%;
+    background: var(--background-light);
 }
 
 .doc-edit-top-nav {
@@ -79,4 +80,15 @@
 
 .style-btn {
     fill: #E6E6E6;
+    padding:2px;
+    border-radius:4px;
 }
+
+
+    .style-btn:hover {
+        background: #D7D7D7;
+    }
+
+    .style-btn.active {
+        background: #D7D7D7;
+    }

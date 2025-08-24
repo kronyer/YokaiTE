@@ -16,7 +16,15 @@
 }
 else
 {
-    <EditToolbar 
+    <EditToolbar IsBold="isBold"
+                 IsItalic="isItalic"
+                 IsUnderline="isUnderline"
+                 IsStrikeThrough="isStrike"
+                 OnFontColorChanged="OnFontColorChanged"
+                 OnHighlightColorChanged="OnHighlightColorChanged"
+                 OnFontSizeChanged="OnFontSizeChanged"
+                 OnFontFamilyChanged="OnFontFamilyChanged"
+                 OnTextAlignChanged="OnTextAlignChanged"
     Document="document"
     IsSaved="isSaved"
     BackHome="BackHome"
@@ -28,26 +36,42 @@ else
     OnUnderline="ApplyUnderline"
     OnStrikeThrough="ApplyStrikethrough"/>
     <div class="edit-page">
-        <div class="zen-editor"
-             contenteditable="true"
-             @oninput="OnContentChanged"
-             @ref="editorDiv"
-             style="background:@(document?.BackgroundColor ?? "#F2F2F2")">
-            >
+
+        <div class="editor-wrap">
+            <div class="zen-editor"
+                 contenteditable="true"
+                 
+                 @oninput="OnContentChanged"
+                 @ref="editorDiv"
+                 style="background:@(document?.BackgroundColor ?? "#F2F2F2")">
+            </div>
+            <canvas class="overlay" @ref="overlayRef"></canvas>
         </div>
+
+
+        
     </div>
     <DocInfoFooter CharCount="charCount" WordCount="wordCount" ByteCount="savedDocSize" />
 }
 
 @code {
+    private bool isBold, isItalic, isUnderline, isStrike;
+    private IJSObjectReference? _selMod;
+
     [Parameter] public long Id { get; set; }
+    private ElementReference overlayRef;
 
     private int charCount => string.IsNullOrEmpty(document?.Content)
         ? 0
         : System.Net.WebUtility.HtmlDecode(
             System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
-          ).Length; private int wordCount => string.IsNullOrWhiteSpace(document?.Content) ? 0 : document.Content.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
-    private int savedDocSize = 0;
+          ).Length;
+    private int wordCount => string.IsNullOrWhiteSpace(document?.Content)
+    ? 0
+    : System.Net.WebUtility.HtmlDecode(
+        System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
+      ).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+        private int savedDocSize = 0;
     private Document document;
     private ElementReference editorDiv;
 
@@ -56,10 +80,10 @@ else
     private bool conteudoSetado = false;
 
     private DotNetObjectReference<Edit> dotNetRef;
-
+    private IJSObjectReference? _spellMod;
     private bool isEditingTitle = false;
     bool isSaved = true;
-
+    private bool overlayReady;
     // bool showExport = false;
 
     private string selectedFont = string.Empty;
@@ -97,14 +121,41 @@ else
         if (firstRender)
         {
             dotNetRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("registerCtrlS", dotNetRef);
+            await JS.InvokeVoidAsync("registerEditorShortcuts", dotNetRef);
+
+            //pm check bold etc
+            await JS.InvokeVoidAsync("selectionStateInterop.registerSelectionEvents", dotNetRef);
+
+
+            //TODO this is important, but not now
+            // _spellMod = await JS.InvokeAsync<IJSObjectReference>("import", "/js/spellOverlay.js");
         }
 
         if (document != null && !conteudoSetado)
         {
             await JS.InvokeVoidAsync("setZenContent", editorDiv, document.Content ?? "");
             conteudoSetado = true;
+
+            if (_spellMod is not null)
+            {
+                await _spellMod.InvokeVoidAsync("init", editorDiv, overlayRef);
+                overlayReady = true;
+
+                // primeira pintura (opcional)
+                await _spellMod.InvokeVoidAsync("check", editorDiv, overlayRef);
+            }
         }
+    }
+
+    [JSInvokable]
+    public async Task UpdateSelectionFormatting()
+    {
+        var state = await JS.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
+        isBold = state.Bold;
+        isItalic = state.Italic;
+        isUnderline = state.Underline;
+        isStrike = state.Strike;
+        StateHasChanged();
     }
 
     protected override async Task OnInitializedAsync()
@@ -138,6 +189,10 @@ else
     {
         isSaved = false;
         document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
+        
+        if (overlayReady && _spellMod is not null)
+            await _spellMod.InvokeVoidAsync("check", editorDiv, overlayRef);
+
         await JS.InvokeVoidAsync("addBeforeUnloadHandler");
 
         debounceCts?.Cancel();
@@ -168,8 +223,20 @@ else
 
     public async ValueTask DisposeAsync()
     {
-        await JS.InvokeVoidAsync("unregisterCtrlS");
-        dotNetRef?.Dispose();
+        try
+        {
+            await JS.InvokeVoidAsync("unregisterEditorShortcuts");
+            await JS.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents"); 
+
+            // if (overlayReady && _spellMod is not null)
+            //     await _spellMod.InvokeVoidAsync("dispose", editorDiv);
+            // if (_spellMod is not null)
+            //     await _spellMod.DisposeAsync();
+        }
+        finally
+        {
+            dotNetRef?.Dispose();
+        }
     }
 
     [Inject] IJSRuntime JS { get; set; }
@@ -179,9 +246,9 @@ else
         selectedFont = font;
     }
 
-    private void BackHome()
+    private async Task BackHome()
     {
-        Salvar();
+        await Salvar();
         Navigation.NavigateTo("/");
     }
     private async Task ApplyBoldAsync()
@@ -201,6 +268,36 @@ else
     private async Task ApplyStrikethrough()
     {
         await JS.InvokeVoidAsync("applyStrikethrough");
+    }
+
+    private async Task OnFontColorChanged(string color)
+    {
+        await JS.InvokeVoidAsync("selectionStateInterop.applyFontColor", color);
+    }
+    private async Task OnHighlightColorChanged(string color)
+    {
+        await JS.InvokeVoidAsync("selectionStateInterop.applyHighlightColor", color);
+    }
+    private async Task OnFontSizeChanged(string size)
+    {
+        await JS.InvokeVoidAsync("selectionStateInterop.applyFontSize", size);
+    }
+    private async Task OnFontFamilyChanged(string font)
+    {
+        await JS.InvokeVoidAsync("selectionStateInterop.applyFontFamily", font);
+    }
+    private async Task OnTextAlignChanged(string align)
+    {
+        await JS.InvokeVoidAsync("applyTextAlign", align);
+    }
+
+    public sealed class SelectionState
+    {
+        public bool Bold { get; set; }
+        public bool Italic { get; set; }
+        public bool Underline { get; set; }
+        public bool Strike { get; set; }
+        public bool IsMixed { get; set; }
     }
 
 }
