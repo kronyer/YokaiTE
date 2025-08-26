@@ -12,6 +12,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 
 builder.Services.AddMudServices();
 
+
 builder.Services.AddIndexedDB(dbStore =>
 {
     dbStore.DbName = "YokaiTE";
