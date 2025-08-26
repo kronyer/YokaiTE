@@ -99,21 +99,55 @@
         window.applyStrikethrough = function () {
             document.execCommand('strikeThrough');
         };
-        applyFontColor: function (color) {
-            document.execCommand('foreColor', false, color);
-        },
-        applyHighlightColor: function (color) {
-            document.execCommand('hiliteColor', false, color);
-        },
-        applyFontSize: function (size) {
-            document.execCommand('fontSize', false, size); // 1-7 (HTML legacy)
-        },
-        applyFontFamily: function (font) {
-            document.execCommand('fontName', false, font);
-        },
-        window.applyTextAlign: function (align) {
-            document.execCommand('justify' + align.charAt(0).toUpperCase() + align.slice(1));
-        }
+        // applyFontColor: function (color) {
+        //     document.execCommand('foreColor', false, color);
+        // },
+        // applyHighlightColor: function (color) {
+        //     document.execCommand('hiliteColor', false, color);
+        // },
+        // applyFontSize: function (size) {
+        //     document.execCommand('fontSize', false, size); // 1-7 (HTML legacy)
+        // },
+        // applyFontFamily: function (font) {
+        //     document.execCommand('fontName', false, font);
+        // },
+        window.applyTextAlign = function (align) {
+            var command;
+            switch (align) {
+                case 'left':
+                    command = 'justifyLeft';
+                    break;
+                case 'center':
+                    command = 'justifyCenter';
+                    break;
+                case 'right':
+                    command = 'justifyRight';
+                    break;
+                case 'full':
+                    command = 'justifyFull';
+                    break;
+                default:
+                    command = 'justifyLeft';
+            }
+            document.execCommand(command);
+        };
+    </script>
+    <script>
+        document.addEventListener('mousedown', function(e) {
+            // Verifica se o clique está dentro da toolbar
+            const toolbar = e.target.closest('.document-edit-top');
+            if (toolbar) {
+                // Exceções: permitir comportamento normal em inputs e selects
+                const isInput = e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'SELECT' ||
+                    e.target.tagName === 'TEXTAREA' ||
+                    e.target.closest('input, select, textarea');
+
+                if (!isInput) {
+                    e.preventDefault();
+                }
+            }
+        });
     </script>
 
     <script src="js/spellOverlay.js"></script>

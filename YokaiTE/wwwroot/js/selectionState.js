@@ -22,15 +22,48 @@
     },
     getFormatting: function () {
         var selection = window.getSelection();
-        var state = { Bold: false, Italic: false, Underline: false, Strike: false };
-        if (!selection.isCollapsed && selection.focusNode) {
+        var state = {
+            Bold: false,
+            Italic: false,
+            Underline: false,
+            Strike: false,
+            TextAlign: "left"
+        };
+
+        if (selection.focusNode) {
             var node = selection.focusNode;
-            while (node) {
-                if (node.nodeName === "B" || node.nodeName === "STRONG") state.Bold = true;
-                if (node.nodeName === "I" || node.nodeName === "EM") state.Italic = true;
-                if (node.nodeName === "U") state.Underline = true;
-                if (node.nodeName === "S" || node.nodeName === "STRIKE") state.Strike = true;
+            var blockElement = null;
+
+            // Encontra o elemento de bloco mais próximo para verificar alinhamento
+            while (node && node.nodeType !== 9) {
+                if (node.nodeType === 1) {
+                    var nodeName = node.nodeName.toLowerCase();
+
+                    // Detecta formatação de texto
+                    if (nodeName === "b" || nodeName === "strong") state.Bold = true;
+                    if (nodeName === "i" || nodeName === "em") state.Italic = true;
+                    if (nodeName === "u") state.Underline = true;
+                    if (nodeName === "s" || nodeName === "strike") state.Strike = true;
+
+                    // Detecta elemento de bloco para alinhamento
+                    if (!blockElement && (nodeName === "div" || nodeName === "p" || nodeName === "h1" ||
+                        nodeName === "h2" || nodeName === "h3" || nodeName === "h4" || nodeName === "h5" ||
+                        nodeName === "h6" || nodeName === "blockquote" || nodeName === "li")) {
+                        blockElement = node;
+                    }
+                }
                 node = node.parentNode;
+            }
+
+            // Verifica alinhamento no elemento de bloco
+            if (blockElement) {
+                var computedStyle = window.getComputedStyle(blockElement);
+                var textAlign = computedStyle.textAlign;
+
+                if (textAlign === "center") state.TextAlign = "center";
+                else if (textAlign === "right") state.TextAlign = "right";
+                else if (textAlign === "justify") state.TextAlign = "full";
+                else state.TextAlign = "left";
             }
         }
         return state;

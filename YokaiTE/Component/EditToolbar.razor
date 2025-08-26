@@ -1,4 +1,4 @@
-<div class="document-edit-top">
+<div class="document-edit-top" @onmousedown:preventDefault="true">
     <div class="doc-edit-top-nav">
         <div class="doc-edit-top-left">
             <button @onclick="BackHome">
@@ -60,20 +60,17 @@
             </button>
             <div style="width: 1px;
         height: 20px; background: #BABABA;"></div>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")' class="style-btn @(false ? "active" : "")">
-                <img src="svg/center.svg" alt="Font Hightlight" />
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")' class="style-btn @(CurrentTextAlign == "center" ? "active" : "")">
+                <img src="svg/center.svg" alt="Centralizar" />
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")' class="style-btn @(false ? "active" : "")">
-                <img src="svg/justify.svg" alt="Font Hightlight" />
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")' class="style-btn @(CurrentTextAlign == "full" ? "active" : "")">
+                <img src="svg/justify.svg" alt="Justificar" />
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")' class="style-btn @(false ? "active" : "")">
-                <img src="svg/left.svg" alt="Font Hightlight" />
-               
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")' class="style-btn @(CurrentTextAlign == "left" ? "active" : "")">
+                <img src="svg/left.svg" alt="Esquerda" />
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")' class="style-btn @(false ? "active" : "")">
-                <img src="svg/right.svg" alt="Font Hightlight" />
-
-                
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")' class="style-btn @(CurrentTextAlign == "right" ? "active" : "")">
+                <img src="svg/right.svg" alt="Direita" />
             </button>
         </div>
     </div>
@@ -97,6 +94,7 @@
     [Parameter] public bool IsUnderline { get; set; }
     [Parameter] public bool IsStrikeThrough { get; set; }
     private string EditTitle = "";
+    [Parameter] public string CurrentTextAlign { get; set; } = "left";
 
     private List<YokaiTE.Component.NormalSelect.SelectOption> possibleFonts = new()
 {
