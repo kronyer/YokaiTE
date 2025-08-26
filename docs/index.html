@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>YokaiTE</title>
+    <base href="/" />
+    <link rel="stylesheet" href="lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="css/app.css" />
+    <link rel="icon" type="image/png" href="favicon.png" />
+    <link href="YokaiTE.styles.css" rel="stylesheet" />
+    <link href="manifest.webmanifest" rel="manifest" />
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link rel="apple-touch-icon" sizes="192x192" href="icon-192.png" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
+    <!-- Important: Increment the version parameter whenever you update MudBlazor to prevent caching issues -->
+    <link href="_content/MudBlazor/MudBlazor.min.css?v=1" rel="stylesheet" />
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@100,200,300,400,500,700,800,900&display=swap"
+          rel="stylesheet">
+
+</head>
+
+<body>
+    <div id="app">
+        <svg class="loading-progress">
+            <circle r="40%" cx="50%" cy="50%" />
+            <circle r="40%" cx="50%" cy="50%" />
+        </svg>
+        <div class="loading-progress-text"></div>
+    </div>
+
+    <div id="blazor-error-ui">
+        An unhandled error has occurred.
+        <a href="." class="reload">Reload</a>
+        <span class="dismiss">🗙</span>
+    </div>
+    <script src="_content/MudBlazor/MudBlazor.min.js?v=1"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
+    <script src="_content/TG.Blazor.IndexedDB/indexedDb.Blazor.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="js/exportToPdf.js"></script>
+    <script src="js/showOptions.js"></script>
+    <script>navigator.serviceWorker.register('service-worker.js');</script>
+    <script>
+        window.getZenContent = function (element) {
+            return element.innerHTML;
+
+        }
+        window.setZenContent = function (element, content) {
+            element.innerHTML = content;
+        }
+    </script>
+    <script>
+        window.registerEditorShortcuts = function (dotNetHelper) {
+            window.editorShortcutsHandler = function (e) {
+                // Ctrl+S (Salvar)
+                if ((e.ctrlKey || e.metaKey) && (e.key === "s" || e.key === "S")) {
+                    e.preventDefault();
+                    dotNetHelper.invokeMethodAsync('SalvarViaAtalho');
+                }
+                // Ctrl+B (Bold)
+                if ((e.ctrlKey || e.metaKey) && (e.key === "b" || e.key === "B")) {
+                    e.preventDefault();
+                    window.applyBold();
+                }
+                // Ctrl+I (Itálico)
+                if ((e.ctrlKey || e.metaKey) && (e.key === "i" || e.key === "I")) {
+                    e.preventDefault();
+                    window.applyItalic();
+                }
+            };
+            window.addEventListener('keydown', window.editorShortcutsHandler);
+        };
+        window.unregisterEditorShortcuts = function () {
+            window.removeEventListener('keydown', window.editorShortcutsHandler);
+        };
+    </script>
+    <script>
+        window.addBeforeUnloadHandler = function () {
+            window.onbeforeunload = function (e) {
+                return "Você tem alterações não salvas. Tem certeza que deseja sair?";
+            };
+        };
+        window.removeBeforeUnloadHandler = function () {
+            window.onbeforeunload = null;
+        };
+    </script>
+    <script>
+        window.applyBold = function () {
+            document.execCommand('bold');
+        };
+        window.applyItalic = function () {
+            document.execCommand('italic');
+        };
+        window.applyUnderline = function () {
+            document.execCommand('underline');
+        };
+        window.applyStrikethrough = function () {
+            document.execCommand('strikeThrough');
+        };
+        // applyFontColor: function (color) {
+        //     document.execCommand('foreColor', false, color);
+        // },
+        // applyHighlightColor: function (color) {
+        //     document.execCommand('hiliteColor', false, color);
+        // },
+        // applyFontSize: function (size) {
+        //     document.execCommand('fontSize', false, size); // 1-7 (HTML legacy)
+        // },
+        // applyFontFamily: function (font) {
+        //     document.execCommand('fontName', false, font);
+        // },
+        window.applyTextAlign = function (align) {
+            var command;
+            switch (align) {
+                case 'left':
+                    command = 'justifyLeft';
+                    break;
+                case 'center':
+                    command = 'justifyCenter';
+                    break;
+                case 'right':
+                    command = 'justifyRight';
+                    break;
+                case 'full':
+                    command = 'justifyFull';
+                    break;
+                default:
+                    command = 'justifyLeft';
+            }
+            document.execCommand(command);
+        };
+    </script>
+    <script>
+        document.addEventListener('mousedown', function(e) {
+            // Verifica se o clique está dentro da toolbar
+            const toolbar = e.target.closest('.document-edit-top');
+            if (toolbar) {
+                // Exceções: permitir comportamento normal em inputs e selects
+                const isInput = e.target.tagName === 'INPUT' ||
+                    e.target.tagName === 'SELECT' ||
+                    e.target.tagName === 'TEXTAREA' ||
+                    e.target.closest('input, select, textarea');
+
+                if (!isInput) {
+                    e.preventDefault();
+                }
+            }
+        });
+    </script>
+
+    <script src="js/spellOverlay.js"></script>
+    <script src="js/selectionState.js"></script>
+</body>
+
+</html>
