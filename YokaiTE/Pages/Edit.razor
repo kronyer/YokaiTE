@@ -26,11 +26,12 @@ else
                  OnFontSizeChanged="OnFontSizeChanged"
                  OnFontFamilyChanged="OnFontFamilyChanged"
                  OnTextAlignChanged="OnTextAlignChanged"
-    Document="document"
+                 SelectedFontSize="@selectedFontSize"
+                 Document="document"
     IsSaved="isSaved"
     BackHome="BackHome"
     TitleChanged="SaveTitleEdit"
-    SelectedFont="selectedFont"
+    SelectedFont="@selectedFont"
     SelectedFontChanged="OnSelectedFont"
     OnBold="ApplyBoldAsync"
     OnItalic="ApplyItalicAsync"
@@ -58,6 +59,8 @@ else
 @code {
     private bool isBold, isItalic, isUnderline, isStrike;
     private string currentTextAlign = "left";
+
+    private string selectedFontSize = "12px";
 
     private IJSObjectReference? _selMod;
 
@@ -193,7 +196,7 @@ else
     {
         isSaved = false;
         document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
-        
+
         if (overlayReady && _spellMod is not null)
             await _spellMod.InvokeVoidAsync("check", editorDiv, overlayRef);
 
@@ -284,7 +287,10 @@ else
     }
     private async Task OnFontSizeChanged(string size)
     {
-        await JS.InvokeVoidAsync("selectionStateInterop.applyFontSize", size);
+        selectedFontSize = size;
+        StateHasChanged();
+
+        await JS.InvokeVoidAsync("applyFontSize", size);
     }
     private async Task OnFontFamilyChanged(string font)
     {

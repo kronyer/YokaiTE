@@ -131,6 +131,31 @@
             }
             document.execCommand(command);
         };
+        window.applyFontFamily = function (font) {
+            document.execCommand('fontName', false, font);
+        };
+
+        window.applyFontSize = function (sizePx) {
+            // Aplica um tamanho temporário usando execCommand
+            document.execCommand('fontSize', false, 7);
+
+            // Substitui o <font size="7"> pelo tamanho em px
+            var selection = window.getSelection();
+            if (!selection.rangeCount) return;
+
+            var range = selection.getRangeAt(0);
+            var editor = range.commonAncestorContainer;
+            while (editor && editor.nodeType !== 1) editor = editor.parentNode;
+
+            if (!editor) return;
+
+            // Procura todas as tags <font size="7"> dentro do editor
+            var fonts = editor.querySelectorAll('font[size="7"]');
+            fonts.forEach(function (font) {
+                font.removeAttribute('size');
+                font.style.fontSize = sizePx;
+            });
+        };
     </script>
     <script>
         document.addEventListener('mousedown', function(e) {

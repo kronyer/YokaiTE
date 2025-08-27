@@ -33,8 +33,8 @@
     </div>
     <div class="toolbar-top-container">
         <div class="font-toolbar w-25">
-            <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="SelectedFontChanged" Value="selectedFont"></NormalSelect>
-            <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="SelectedFontSizeChanged" Value="selectedFontSize"></NormalSelect>
+            <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="OnFontFamilyChanged" Value="SelectedFont"></NormalSelect>
+            <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="OnFontSizeChanged" Value="@SelectedFontSize"></NormalSelect>
         </div>
         <div class="style-toolbar w-75">
             <button class="style-btn @(false ? "active" : "")">
@@ -96,6 +96,8 @@
     private string EditTitle = "";
     [Parameter] public string CurrentTextAlign { get; set; } = "left";
 
+    [Parameter] public string SelectedFontSize { get; set; }
+
     private List<YokaiTE.Component.NormalSelect.SelectOption> possibleFonts = new()
 {
     new("Arial", "Arial"),
@@ -114,12 +116,15 @@
     private string selectedFont = "Arial";
 
     private List<NormalSelect.SelectOption> possibleFontSizes = new()
-    {
-        new("Pequeno", "2"),
-        new("Normal", "3"),
-        new("Grande", "5"),
-        new("Enorme", "7")
-    };
+{
+    new("10px", "10px"),
+    new("12px", "12px"),
+    new("14px", "14px"),
+    new("16px", "16px"),
+    new("18px", "18px"),
+    new("24px", "24px"),
+    new("32px", "32px")
+};
 
     private List<NormalSelect.SelectOption> fontColors = new()
     {
