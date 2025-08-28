@@ -136,25 +136,68 @@
         };
 
         window.applyFontSize = function (sizePx) {
-            // Aplica um tamanho temporário usando execCommand
-            document.execCommand('fontSize', false, 7);
-
-            // Substitui o <font size="7"> pelo tamanho em px
             var selection = window.getSelection();
             if (!selection.rangeCount) return;
 
             var range = selection.getRangeAt(0);
-            var editor = range.commonAncestorContainer;
-            while (editor && editor.nodeType !== 1) editor = editor.parentNode;
 
-            if (!editor) return;
+            // Se há texto selecionado
+            if (!range.collapsed) {
+                var container = range.commonAncestorContainer;
+                var walker = document.createTreeWalker(
+                    container,
+                    NodeFilter.SHOW_ELEMENT,
+                    function(node) {
+                        return range.intersectsNode && range.intersectsNode(node) ?
+                            NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
+                    }
+                );
 
-            // Procura todas as tags <font size="7"> dentro do editor
-            var fonts = editor.querySelectorAll('font[size="7"]');
-            fonts.forEach(function (font) {
-                font.removeAttribute('size');
-                font.style.fontSize = sizePx;
-            });
+                var elementsToUpdate = [];
+                var currentNode;
+                while (currentNode = walker.nextNode()) {
+                    if (currentNode.style && currentNode.style.fontSize) {
+                        elementsToUpdate.push(currentNode);
+                    }
+                }
+
+                elementsToUpdate.forEach(function(element) {
+                    element.style.fontSize = '';
+                    if (!element.style.cssText) {
+                        element.removeAttribute('style');
+                    }
+                });
+
+                var contents = range.extractContents();
+                var span = document.createElement('span');
+                span.style.fontSize = sizePx;
+                span.appendChild(contents);
+                range.insertNode(span);
+
+                range.selectNodeContents(span);
+                selection.removeAllRanges();
+                selection.addRange(range);
+            } else {
+                // Para cursor sem seleção - aplica no elemento pai mais próximo
+                var focusNode = selection.focusNode;
+                var element = focusNode.nodeType === 3 ? focusNode.parentElement : focusNode;
+
+                // Se está no editor principal, cria um span
+                if (element.classList.contains('zen-editor')) {
+                    var span = document.createElement('span');
+                    span.style.fontSize = sizePx;
+                    span.innerHTML = '&#8203;'; // Zero-width space
+                    range.insertNode(span);
+
+                    range.setStart(span, 1);
+                    range.setEnd(span, 1);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                } else {
+                    // Aplica no elemento atual
+                    element.style.fontSize = sizePx;
+                }
+            }
         };
     </script>
     <script>
@@ -173,6 +216,34 @@
                 }
             }
         });
+    </script>
+    <script>
+        window.setupZenEditorSpanWrapper = function(editorElement) {
+            function createInitialSpan() {
+                if (editorElement.innerHTML.trim() === '' ||
+                    editorElement.innerHTML === '<br>' ||
+                    editorElement.innerHTML === '<div><br></div>') {
+
+                    var span = document.createElement('div');
+                    span.style.fontSize = '18px';
+                    span.innerHTML = '&#8203;'; // Zero-width space
+
+                    editorElement.innerHTML = '';
+                    editorElement.appendChild(span);
+
+                    // Posiciona cursor no span
+                    var selection = window.getSelection();
+                    var range = document.createRange();
+                    range.setStart(span, 1);
+                    range.setEnd(span, 1);
+                    selection.removeAllRanges();
+                    selection.addRange(range);
+                }
+            }
+
+            // Listener para quando foca no editor
+            editorElement.addEventListener('focus', createInitialSpan);
+        };
     </script>
 
     <script src="js/spellOverlay.js"></script>

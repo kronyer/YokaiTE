@@ -60,7 +60,7 @@ else
     private bool isBold, isItalic, isUnderline, isStrike;
     private string currentTextAlign = "left";
 
-    private string selectedFontSize = "12px";
+    private string selectedFontSize = "16px";
 
     private IJSObjectReference? _selMod;
 
@@ -140,6 +140,8 @@ else
         if (document != null && !conteudoSetado)
         {
             await JS.InvokeVoidAsync("setZenContent", editorDiv, document.Content ?? "");
+            await JS.InvokeVoidAsync("setupZenEditorSpanWrapper", editorDiv);
+
             conteudoSetado = true;
 
             if (_spellMod is not null)
@@ -162,6 +164,7 @@ else
         isUnderline = state.Underline;
         isStrike = state.Strike;
         currentTextAlign = state.TextAlign;
+        selectedFontSize = state.FontSize; // Atualiza o tamanho detectado
         StateHasChanged();
     }
 
@@ -288,9 +291,11 @@ else
     private async Task OnFontSizeChanged(string size)
     {
         selectedFontSize = size;
-        StateHasChanged();
-
         await JS.InvokeVoidAsync("applyFontSize", size);
+    
+        // Aguarda o DOM atualizar e então verifica o estado
+        await Task.Delay(50);
+        await UpdateSelectionFormatting();
     }
     private async Task OnFontFamilyChanged(string font)
     {
@@ -313,6 +318,7 @@ else
         public bool Strike { get; set; }
         public bool IsMixed { get; set; }
         public string TextAlign { get; set; } = "left";
+        public string FontSize { get; set; } = "16px";
     }
 
 }

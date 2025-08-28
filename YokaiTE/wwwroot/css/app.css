@@ -181,3 +181,10 @@ code {
     inset: 0;
     pointer-events: none;
 }
+
+.zen-editor {
+    font-size:18px;
+}
+.zen-editor * {
+    font-size:18px;
+}

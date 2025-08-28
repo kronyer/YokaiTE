@@ -21,51 +21,122 @@
         window._selectionStateInteropNotify = null;
     },
     getFormatting: function () {
-        var selection = window.getSelection();
-        var state = {
+        const sel = window.getSelection();
+        const state = {
             Bold: false,
             Italic: false,
             Underline: false,
             Strike: false,
-            TextAlign: "left"
+            TextAlign: "left",
+            FontSize: ""
         };
 
-        if (selection.focusNode) {
-            var node = selection.focusNode;
-            var blockElement = null;
+        if (!sel || !sel.rangeCount) return state;
 
-            // Encontra o elemento de bloco mais próximo para verificar alinhamento
-            while (node && node.nodeType !== 9) {
-                if (node.nodeType === 1) {
-                    var nodeName = node.nodeName.toLowerCase();
+        const range = sel.getRangeAt(0);
+        const focusNode = sel.focusNode;
+        if (!focusNode) return state;
 
-                    // Detecta formatação de texto
-                    if (nodeName === "b" || nodeName === "strong") state.Bold = true;
-                    if (nodeName === "i" || nodeName === "em") state.Italic = true;
-                    if (nodeName === "u") state.Underline = true;
-                    if (nodeName === "s" || nodeName === "strike") state.Strike = true;
+        const focusEl = focusNode.nodeType === Node.ELEMENT_NODE
+            ? focusNode
+            : focusNode.parentElement;
+        if (!focusEl) return state;
 
-                    // Detecta elemento de bloco para alinhamento
-                    if (!blockElement && (nodeName === "div" || nodeName === "p" || nodeName === "h1" ||
-                        nodeName === "h2" || nodeName === "h3" || nodeName === "h4" || nodeName === "h5" ||
-                        nodeName === "h6" || nodeName === "blockquote" || nodeName === "li")) {
-                        blockElement = node;
+        const editorRoot = focusEl.closest('[contenteditable="true"]');
+        if (!editorRoot) return state;
+
+        // === FONT-SIZE com prioridade para spans ===
+        let fontSize = "";
+
+        // Se há seleção, verifica se há múltiplos tamanhos
+        if (!range.collapsed) {
+            const fontSizes = new Set();
+            const walker = document.createTreeWalker(
+                range.commonAncestorContainer,
+                NodeFilter.SHOW_ELEMENT,
+                {
+                    acceptNode: function(node) {
+                        return range.intersectsNode(node) ?
+                            NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
                     }
                 }
-                node = node.parentNode;
+            );
+
+            let node;
+            while (node = walker.nextNode()) {
+                const fs = window.getComputedStyle(node).fontSize;
+                if (fs) fontSizes.add(fs);
             }
 
-            // Verifica alinhamento no elemento de bloco
-            if (blockElement) {
-                var computedStyle = window.getComputedStyle(blockElement);
-                var textAlign = computedStyle.textAlign;
+            // Se múltiplos tamanhos, deixa vazio
+            if (fontSizes.size > 1) {
+                fontSize = "";
+            } else if (fontSizes.size === 1) {
+                fontSize = Array.from(fontSizes)[0];
+            }
+        } else {
+            // Cursor sem seleção - pega do elemento mais próximo
+            let node = focusEl;
+            while (node && node !== editorRoot) {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                    const fs = window.getComputedStyle(node).fontSize;
+                    if (fs && node.style.fontSize) { // Prioriza elementos com style inline
+                        fontSize = fs;
+                        break;
+                    }
+                }
+                node = node.parentElement;
+            }
 
-                if (textAlign === "center") state.TextAlign = "center";
-                else if (textAlign === "right") state.TextAlign = "right";
-                else if (textAlign === "justify") state.TextAlign = "full";
-                else state.TextAlign = "left";
+            // Se não achou com style inline, pega qualquer um
+            if (!fontSize) {
+                node = focusEl;
+                while (node && node !== editorRoot) {
+                    if (node.nodeType === Node.ELEMENT_NODE) {
+                        const fs = window.getComputedStyle(node).fontSize;
+                        if (fs) {
+                            fontSize = fs;
+                            break;
+                        }
+                    }
+                    node = node.parentElement;
+                }
             }
         }
+
+        state.FontSize = fontSize;
+
+        // === Formatação inline ===
+        let node = focusNode;
+        while (node && node !== editorRoot) {
+            if (node.nodeType === Node.ELEMENT_NODE) {
+                const name = node.nodeName.toLowerCase();
+                if (name === 'b' || name === 'strong') state.Bold = true;
+                if (name === 'i' || name === 'em') state.Italic = true;
+                if (name === 'u') state.Underline = true;
+                if (name === 's' || name === 'strike') state.Strike = true;
+            }
+            node = node.parentNode;
+        }
+
+        // === Alinhamento do bloco ===
+        if (blockElement) {
+            const textAlign = window.getComputedStyle(blockElement).textAlign;
+            if (textAlign === "center") state.TextAlign = "center";
+            else if (textAlign === "right") state.TextAlign = "right";
+            else if (textAlign === "justify") state.TextAlign = "full";
+            else state.TextAlign = "left";
+        }
+
         return state;
+    },
+    applyFontColor: function (color) {
+        document.execCommand('foreColor', false, color);
+    },
+    applyHighlightColor: function (color) {
+        document.execCommand('hiliteColor', false, color);
+    },
+    applyFontFamily: function (font) {
+        document.execCommand('fontName', false, font);
     }
 };
