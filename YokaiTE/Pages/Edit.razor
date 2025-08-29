@@ -253,9 +253,17 @@ else
 
     private void OnSelectedFont(string font)
     {
-        selectedFont = font;
+        selectedFont = font; // keeps parent state in sync with toolbar
     }
 
+    private async Task OnFontFamilyChanged(string font)
+    {
+        await JS.InvokeVoidAsync("selectionStateInterop.applyFontFamily", font);
+
+        // Optional: refresh formatting like you do for size/align
+        await Task.Delay(50);
+        await UpdateSelectionFormatting();
+    }
     private async Task BackHome()
     {
         await Salvar();
@@ -296,10 +304,6 @@ else
         // Aguarda o DOM atualizar e então verifica o estado
         await Task.Delay(50);
         await UpdateSelectionFormatting();
-    }
-    private async Task OnFontFamilyChanged(string font)
-    {
-        await JS.InvokeVoidAsync("selectionStateInterop.applyFontFamily", font);
     }
     private async Task OnTextAlignChanged(string align)
     {
