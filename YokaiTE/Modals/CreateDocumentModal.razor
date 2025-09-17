@@ -29,7 +29,7 @@
             </div>
             <div class="switch-container">
                 <NormalSwitch Label="Quebra de página" @bind-Value="PageBreak"/>
-                <NormalSwitch Label="Interpretar markdown" @bind-Value="ParseMarkdown"/>
+                <NormalSwitch Label="Interpretar markdown" @bind-Value="IsSimpleDocument"/>
 
             </div>
             <div class="button-container">
@@ -74,7 +74,7 @@
     private string Title { get; set; } = string.Empty;
     private string Language { get; set; } = string.Empty;
     private string SelectedColor { get; set; }
-    private bool ParseMarkdown;
+    private bool IsSimpleDocument;
     private bool PageBreak;
 
     private void OnInitialize()
@@ -95,7 +95,8 @@
             Title = Title,
             CreatedAt = DateTime.Now,
             LastModified = DateTime.Now,
-            BackgroundColor = SelectedColor
+            BackgroundColor = SelectedColor,
+            IsSimple = IsSimpleDocument
         });
         await VisibleChanged.InvokeAsync(false);
     }

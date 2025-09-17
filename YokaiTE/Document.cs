@@ -10,8 +10,12 @@ public class Document
     public DateTime LastOpened { get; set; }
 
     public string BackgroundColor { get; set; } = "#F2F2F2";
+    //TODO remove IsPAged
     public bool IsPaged { get; set; }
-    public bool IsMarkdown { get; set; }
+    public bool IsSimple { get; set; }
 
+    //TODO remove language
     public string? Language { get; set; }
+    public string? PreviewPngBase64 { get; set; } // preview persistido
+
 }

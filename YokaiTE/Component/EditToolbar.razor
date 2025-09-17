@@ -33,8 +33,12 @@
     </div>
     <div class="toolbar-top-container">
         <div class="font-toolbar w-25">
+            @if (!Document.IsSimple)
+            {
             <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="OnFontFamilySelectChanged" Value="SelectedFont"></NormalSelect>
             <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="OnFontSizeChanged" Value="@SelectedFontSize"></NormalSelect>
+                
+            }
         </div>
         <div class="style-toolbar w-75">
             <button class="style-btn @(false ? "active" : "")">
