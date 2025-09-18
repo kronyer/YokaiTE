@@ -1,6 +1,9 @@
 ﻿@page "/"
 @using IndexedDB.Blazor
 @using System.Diagnostics
+@using System.IO.Compression
+@using System.Text
+@using System.Text.Json
 @using TG.Blazor.IndexedDB
 @using YokaiTE.Component
 @using YokaiTE.Data
@@ -25,7 +28,7 @@
                      OnDelete="OnDelete"
                      Top="@contextMenuTop"
                      Left="@contextMenuLeft" />
-
+<div id="drop-zone" class="top-drop-zone">
 <div class="top-bar">
 
     <nav class="nav-container">
@@ -38,7 +41,7 @@
         <div style="width:106px"></div>
     </nav>
 </div>
-
+<div id="shadow" class="upload-shadow"></div>
 <div class="page">
     <div class="documents">
         <div class="top-container">
@@ -72,7 +75,7 @@
                     <div @oncontextmenu:preventDefault="true"
                          @onclick="(e => EditDocument(doc.Id))" class="document-card"
                          @oncontextmenu="(e => ShowContextMenu(e, doc))
-                                 ">
+                         ">
                         <div class="card-preview">
                             @if (!string.IsNullOrEmpty(doc.PreviewPngBase64))
                             {
@@ -140,8 +143,11 @@
 
     </div>
 </div>
+</div>
 
 @code {
+    private DotNetObjectReference<Home> dotNetRef;
+
     private YokaiDb db;
     private string _orderBy = string.Empty;
     private bool isCardView = true;
@@ -161,6 +167,70 @@
 
     private bool showRenameModal = false;
 
+    [JSInvokable]
+    public async Task ImportHaikuFromBase64(string base64, string filename)
+    {
+        try
+        {
+            var bytes = Convert.FromBase64String(base64);
+
+            var header = Encoding.ASCII.GetBytes("YOKAIHAIKU");
+            if (bytes.Length < header.Length + 1) return;
+
+            for (int i = 0; i < header.Length; i++)
+            {
+                if (bytes[i] != header[i]) return;
+            }
+
+            var version = bytes[header.Length]; // atualmente não usado, queda suave se necessário
+
+            var compressedLen = bytes.Length - header.Length - 1;
+            if (compressedLen <= 0) return;
+
+            var compressed = new byte[compressedLen];
+            Buffer.BlockCopy(bytes, header.Length + 1, compressed, 0, compressedLen);
+
+            string json;
+            using (var inMs = new MemoryStream(compressed))
+            using (var gzip = new GZipStream(inMs, CompressionMode.Decompress))
+            using (var reader = new StreamReader(gzip, Encoding.UTF8))
+            {
+                json = await reader.ReadToEndAsync();
+            }
+
+            var imported = JsonSerializer.Deserialize<Document>(json);
+            if (imported == null) return;
+
+            // Reset id to allow IndexedDB criar um novo registro
+            imported.Id = 0;
+            imported.CreatedAt = DateTime.Now;
+            imported.LastModified = DateTime.Now;
+            imported.LastOpened = DateTime.Now;
+
+            // Opcional: gerar preview se existir utilitário
+            try
+            {
+                imported.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(imported);
+            }
+            catch { /* ignore se não disponível */ }
+
+            var record = new StoreRecord<Document> { Storename = "documents", Data = imported };
+            await DbManager.AddRecord(record);
+
+            // Recarrega lista e navega para o novo documento (mesma abordagem do SaveDocument)
+            var loaded = await DbManager.GetRecords<Document>("documents");
+            var novoDoc = loaded
+                .OrderByDescending(d => d.LastModified)
+                .FirstOrDefault(d => d.Title == imported.Title && d.LastModified.Date == imported.LastModified.Date && d.LastModified.TimeOfDay.TotalSeconds - imported.LastModified.TimeOfDay.TotalSeconds < 5);
+
+                await LoadDocuments();
+        }
+        catch
+        {
+            // fail silently ou log
+        }
+    }
+    
     private string GetSubtitle(Document doc)
     {
         return SelectedField switch
@@ -181,6 +251,43 @@
         if (ts.TotalHours < 24)
             return $"{(int)ts.TotalHours} hora{(ts.TotalHours < 2 ? "" : "s")}";
         return $"{(int)ts.TotalDays} dia{(ts.TotalDays < 2 ? "" : "s")}";
+    }
+    
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JsRuntime.InvokeVoidAsync("haikuDrop.register", dotNetRef, "drop-zone");
+
+            // Verifica se a PWA recebeu um ficheiro via launchQueue (guardado em localStorage pelo script)
+            try
+            {
+                var importJson = await JsRuntime.InvokeAsync<string>("localStorage.getItem", "haikuImport");
+                if (!string.IsNullOrEmpty(importJson))
+                {
+                    // remove o item para não processar novamente
+                    await JsRuntime.InvokeVoidAsync("localStorage.removeItem", "haikuImport");
+
+                    var payload = JsonSerializer.Deserialize<ImportPayload>(importJson);
+                    if (payload?.Base64 != null)
+                    {
+                        // chama o mesmo método já existente para importar
+                        await ImportHaikuFromBase64(payload.Base64, payload.FileName ?? "import.haiku");
+                    }
+                }
+            }
+            catch
+            {
+                // ignore falhas simples
+            }
+        }
+    }
+    
+    private class ImportPayload
+    {
+        public string Base64 { get; set; }
+        public string FileName { get; set; }
     }
 
     private void OnSearchInput(string value)
@@ -329,4 +436,16 @@
         Navigation.NavigateTo("/");
     }
     private List<string> OrderOptions = new() { "Data de abertura", "Data de edição", "Data de criação", "Ordem alfabética" };
+    
+    public async ValueTask DisposeAsync()
+    {
+        try
+        {
+            await JsRuntime.InvokeVoidAsync("haikuDrop.unregister", "drop-zone");
+        }
+        finally
+        {
+            dotNetRef?.Dispose();
+        }
+    }
 }
