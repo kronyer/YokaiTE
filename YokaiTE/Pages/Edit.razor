@@ -185,7 +185,7 @@ else
         // Captura o conteúdo editado
         document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
         document.LastModified = DateTime.Now;
-        document.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(document.Content);
+        document.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(document);
 
         var record = new StoreRecord<Document> { Storename = "documents", Data = document };
         await DbManager.UpdateRecord(record);

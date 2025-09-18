@@ -69,6 +69,98 @@
                     e.preventDefault();
                     window.applyItalic();
                 }
+
+                if ((e.ctrlKey || e.metaKey) && (e.key === 'p' || e.key === 'P')) {
+                    e.preventDefault();
+                    printZenEditor();
+                }
+
+                function ensurePrintStyle() {
+                    if (document.getElementById('zen-print-style')) return;
+                    const css = `
+    @page { margin: 0; size: auto; }
+    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+    .print-only { display: none; }
+    @media print {
+      /* Esconde todo o resto e mostra apenas o container de impressão */
+      body > :not(.print-only) { display: none !important; }
+      .print-only {
+        display: block !important;
+        padding: 24px !important;
+        box-sizing: border-box !important;
+        width: calc(100% - 48px) !important; /* 100% menos padding lateral */
+        max-width: 100% !important;
+        height: auto !important;
+        margin: 0 !important;
+        overflow: visible !important;
+      }
+      /* Evita que elementos internos excedam a largura e gerem scroll lateral */
+      .print-only * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+        overflow-wrap: break-word !important;
+        word-break: break-word !important;
+      }
+    }
+  `;
+                    const style = document.createElement('style');
+                    style.id = 'zen-print-style';
+                    style.appendChild(document.createTextNode(css));
+                    document.head.appendChild(style);
+                }
+
+                function printZenEditor() {
+                    const el = document.querySelector('.zen-editor');
+                    if (!el) return;
+
+                    ensurePrintStyle();
+
+                    // Cria container oculto para impressão e insere clone do editor
+                    const container = document.createElement('div');
+                    container.className = 'print-only';
+                    container.setAttribute('aria-hidden', 'true');
+                    // Clona com true para copiar filhos
+                    const clone = el.cloneNode(true);
+                    // opcional: remover elementos interativos que não interessam na impressão
+                    clone.querySelectorAll('input, textarea, button, [contenteditable]').forEach(n => n.removeAttribute('contenteditable'));
+                    container.appendChild(clone);
+                    document.body.appendChild(container);
+
+                    let cleaned = false;
+                    function cleanUp() {
+                        if (cleaned) return;
+                        cleaned = true;
+                        if (container.parentNode) container.parentNode.removeChild(container);
+                        // não removemos o estilo para reuso da função
+                        window.removeEventListener('afterprint', onAfterPrint);
+                    }
+
+                    function onAfterPrint() {
+                        cleanUp();
+                    }
+
+                    window.addEventListener('afterprint', onAfterPrint);
+
+                    // Fallback: remove se afterprint não for disparado (alguns navegadores)
+                    const fallback = setTimeout(() => {
+                        cleanUp();
+                        clearTimeout(fallback);
+                    }, 2000);
+
+                    // Pequeno delay para garantir carregamento de fontes/estilos
+                    setTimeout(() => {
+                        try {
+                            window.print();
+                        } catch (e) {
+                            // alguns ambientes podem bloquear print; ainda manter cleanup via afterprint/fallback
+                        }
+                    }, 150);
+                }
+
+                // Exporta função global para uso no registerEditorShortcuts existente
+                window.printZenEditor = printZenEditor;
+                
+                
             };
             window.addEventListener('keydown', window.editorShortcutsHandler);
         };

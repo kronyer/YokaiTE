@@ -54,6 +54,16 @@
     flex-wrap:wrap;
 }
 
+@media (max-width: 1024px) {
+    .document-card{
+        margin:auto;
+    }
+    
+    .page{
+        padding:10%;
+    }
+}
+
 .document-card {
     display: flex;
     width: 194px;

@@ -1,5 +1,6 @@
 ﻿using SkiaSharp;
 using System.Text.RegularExpressions;
+using YokaiTE;
 
 public static class PreviewRenderer
 {
@@ -13,8 +14,9 @@ public static class PreviewRenderer
     private const float FontSize = 7f;
     private const float LineHeight = 1.35f * FontSize; // ~18.9px
 
-    public static string RenderPngBase64(string html)
+    public static string RenderPngBase64(Document doc)
     {
+        var html = doc.Content;
         // 1) Extrai parágrafos: cada <div> é um parágrafo, remove demais tags
         var paragraphs = ExtractParagraphs(html);
 
@@ -35,7 +37,7 @@ public static class PreviewRenderer
             Color = ParseColor(TextHex),
             IsAntialias = true,
             TextSize = FontSize,
-            Typeface = SKTypeface.FromFamilyName("Inter", SKFontStyle.Normal) // ajuste se quiser outra
+            Typeface = SKTypeface.FromFamilyName("Cabinet Grotesk", SKFontStyle.Normal) // ajuste se quiser outra
         };
 
         float x = PadX;
