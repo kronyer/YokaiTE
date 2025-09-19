@@ -27,11 +27,11 @@
                               Options="IdiomaOptions"
                               @bind-Value="Language"/>
             </div>
-            <div class="switch-container">
-                <NormalSwitch Label="Quebra de página" @bind-Value="PageBreak"/>
-                <NormalSwitch Label="Interpretar markdown" @bind-Value="IsSimpleDocument"/>
-
-            </div>
+            @* <div class="switch-container"> *@
+            @*     <NormalSwitch Label="Quebra de página" @bind-Value="PageBreak"/> *@
+            @*     <NormalSwitch Label="Texto simples" readonly="true" disabled="true" @bind-Value="IsSimpleDocument"/> *@
+            @* *@
+            @* </div> *@
             <div class="button-container">
                 <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
                 <button @onclick="OnConfirm" class="confirm-btn">Criar</button>
@@ -74,7 +74,7 @@
     private string Title { get; set; } = string.Empty;
     private string Language { get; set; } = string.Empty;
     private string SelectedColor { get; set; }
-    private bool IsSimpleDocument;
+    private bool IsSimpleDocument = true;
     private bool PageBreak;
 
     private void OnInitialize()

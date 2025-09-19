@@ -153,11 +153,7 @@ code {
     position: relative;
 }
 
-.zen-editor {
-    position: relative;
-    white-space: pre-wrap;
-    z-index: 1;
-}
+
 
 .overlay {
     position: absolute;
@@ -170,11 +166,7 @@ code {
     position: relative;
 }
 
-.zen-editor {
-    position: relative;
-    overflow: auto;
-    white-space: pre-wrap;
-}
+
 
 .overlay {
     position: absolute;
@@ -182,9 +174,3 @@ code {
     pointer-events: none;
 }
 
-.zen-editor {
-    font-size:18px;
-}
-.zen-editor * {
-    font-size:18px;
-}

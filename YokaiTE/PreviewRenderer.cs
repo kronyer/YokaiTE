@@ -25,7 +25,7 @@ public static class PreviewRenderer
         canvas.Clear(SKColors.Transparent);
 
         // Fundo com cantos arredondados
-        using (var bgPaint = new SKPaint { Color = ParseColor(BgHex), IsAntialias = true })
+        using (var bgPaint = new SKPaint { Color = ParseColor(doc.BackgroundColor), IsAntialias = true })
         {
             var rrect = new SKRoundRect(new SKRect(0, 0, Width, Height), Radius, Radius);
             canvas.DrawRoundRect(rrect, bgPaint);

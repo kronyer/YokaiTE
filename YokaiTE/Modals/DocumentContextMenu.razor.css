@@ -10,7 +10,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 1px;
-    border: var(--dropdown-border);
+    border: 1px solid var(--dropdown-border);
 }
 
 .modal-back{
