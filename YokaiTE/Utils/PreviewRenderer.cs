@@ -1,5 +1,5 @@
-﻿using SkiaSharp;
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
+using SkiaSharp;
 using YokaiTE;
 
 public static class PreviewRenderer
