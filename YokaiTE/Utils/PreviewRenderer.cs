@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
-using SkiaSharp;
 using YokaiTE;
+using SkiaSharp;
 
 public static class PreviewRenderer
 {
