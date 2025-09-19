@@ -20,8 +20,6 @@ builder.Services.AddScoped<IFileInfoProvider, FileInfoProvider>();
 
 builder.Services.AddMudServices();
 
-builder.RootComponents.Add<App>("#app");
-
 
 builder.Services.AddIndexedDB(dbStore =>
 {
