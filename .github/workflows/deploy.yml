@@ -45,6 +45,9 @@ jobs:
           sed -i 's|href="manifest.webmanifest"|href="./manifest.webmanifest"|' release/wwwroot/index.html
           sed -i 's|serviceWorker.register("service-worker.js")|serviceWorker.register("./service-worker.js")|' release/wwwroot/index.html
 
+      - name: Copy index.html to 404.html
+        run: cp release/wwwroot/index.html release/wwwroot/404.html
+
       - name: Setup Pages
         uses: actions/configure-pages@v5
 
