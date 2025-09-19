@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using MudBlazor.Services;
 using TG.Blazor.IndexedDB;
 using YokaiTE;
+using YokaiTE.Interfaces;
 using YokaiTE.Utils;
 using YokaiTE.Utils.TextHandlers;
 

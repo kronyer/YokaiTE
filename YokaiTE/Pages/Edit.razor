@@ -1,24 +1,21 @@
 ﻿@page "/edit/{Id:long}"
 @using System.Diagnostics
-@using System.IO.Compression
 @using System.Text
 @using System.Text.Json
 @using TG.Blazor.IndexedDB
-@using QuestPDF.Fluent;
-@using QuestPDF.Infrastructure;
 @using Document = YokaiTE.Document
 @using YokaiTE.Component
 @using YokaiTE.Utils
 @inject IndexedDBManager DbManager
 @inject NavigationManager Navigation
 @inject IFileExporter FileExporter
-@inject IJSRuntime JS 
+@inject IJSRuntime Js 
 
 @implements IAsyncDisposable
 
 <PageTitle>Editar Documento</PageTitle>
 
-@if (document == null)
+@if (_document == null)
 {
     <p>Carregando...</p>
 }
@@ -35,11 +32,11 @@ else
                  OnFontFamilyChanged="OnFontFamilyChanged"
                  OnTextAlignChanged="OnTextAlignChanged"
                  SelectedFontSize="@selectedFontSize"
-                 Document="document"
-                 IsSaved="isSaved"
+                 Document="_document"
+                 IsSaved="_isSaved"
                  BackHome="BackHome"
                  TitleChanged="SaveTitleEdit"
-                 SelectedFont="@selectedFont"
+                 SelectedFont="@_selectedFont"
                  SelectedFontChanged="OnSelectedFont"
     />
     <div class="edit-page">
@@ -49,15 +46,15 @@ else
                  contenteditable="true"
 
                  @oninput="OnContentChanged"
-                 @ref="editorDiv"
-                 style="background:@(document?.BackgroundColor ?? "#F2F2F2")">
+                 @ref="_editorDiv"
+                 style="background:@(_document?.BackgroundColor ?? "#F2F2F2")">
             </div>
-            <canvas class="overlay" @ref="overlayRef"></canvas>
+            <canvas class="overlay" @ref="_overlayRef"></canvas>
         </div>
 
 
     </div>
-    <DocInfoFooter CharCount="charCount" WordCount="wordCount" ByteCount="savedDocSize"/>
+    <DocInfoFooter CharCount="CharCount" WordCount="WordCount" ByteCount="_savedDocSize"/>
 }
 
 @code {
@@ -68,34 +65,34 @@ else
     private string currentTextAlign = "left";
     private string selectedFontSize = "16px";
 
-    private int charCount => string.IsNullOrEmpty(document?.Content)
+    private int CharCount => string.IsNullOrEmpty(_document?.Content)
         ? 0
         : System.Net.WebUtility.HtmlDecode(
-            System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
+            System.Text.RegularExpressions.Regex.Replace(_document.Content, "<.*?>", string.Empty)
         ).Length;
 
-    private int wordCount => string.IsNullOrWhiteSpace(document?.Content)
+    private int WordCount => string.IsNullOrWhiteSpace(_document?.Content)
         ? 0
         : System.Net.WebUtility.HtmlDecode(
-            System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
+            System.Text.RegularExpressions.Regex.Replace(_document.Content, "<.*?>", string.Empty)
         ).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
 
-    private int savedDocSize = 0;
-    private string selectedFont = string.Empty;
+    private int _savedDocSize;
+    private string _selectedFont = string.Empty;
 
     private int GetDocumentSizeInBytes()
     {
-        if (document == null)
+        if (_document == null)
             return 0;
 
-        var json = System.Text.Json.JsonSerializer.Serialize(document);
+        var json = JsonSerializer.Serialize(_document);
 
-        return System.Text.Encoding.UTF8.GetByteCount(json);
+        return Encoding.UTF8.GetByteCount(json);
     }
     [JSInvokable]
     public async Task UpdateSelectionFormatting()
     {
-        var state = await JS.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
+        var state = await Js.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
         isBold = state.Bold;
         isItalic = state.Italic;
         isUnderline = state.Underline;
@@ -106,36 +103,31 @@ else
     }
     
 #endregion
-    private IJSObjectReference? _selMod;
 
     [Parameter] public long Id { get; set; }
-    private ElementReference overlayRef;
+    private ElementReference _overlayRef;
 
 
-    private Document document;
-    private ElementReference editorDiv;
+    private Document? _document;
+    private ElementReference _editorDiv;
 
-    private string ultimoContentCarregado = null;
+    private bool _conteudoSetado = false;
 
-    private bool conteudoSetado = false;
-
-    private DotNetObjectReference<Edit> dotNetRef;
+    private DotNetObjectReference<Edit>? _dotNetRef;
     private IJSObjectReference? _spellMod;
-    private bool isEditingTitle = false;
-    bool isSaved = true;
-    private bool overlayReady;
+    private bool _isSaved = true;
+    private bool _overlayReady;
     // bool showExport = false;
 
 
     private async Task SaveTitleEdit(string editTitle)
     {
-        if (!string.IsNullOrWhiteSpace(editTitle) && document != null)
+        if (!string.IsNullOrWhiteSpace(editTitle) && _document != null)
         {
-            document.Title = editTitle;
+            _document.Title = editTitle;
             await Salvar();
         }
 
-        isEditingTitle = false;
         StateHasChanged();
     }
 
@@ -143,31 +135,31 @@ else
     {
         if (firstRender)
         {
-            dotNetRef = DotNetObjectReference.Create(this);
-            await JS.InvokeVoidAsync("registerEditorShortcuts", dotNetRef);
+            _dotNetRef = DotNetObjectReference.Create(this);
+            await Js.InvokeVoidAsync("registerEditorShortcuts", _dotNetRef);
 
             //pm check bold etc
-            await JS.InvokeVoidAsync("selectionStateInterop.registerSelectionEvents", dotNetRef);
+            await Js.InvokeVoidAsync("selectionStateInterop.registerSelectionEvents", _dotNetRef);
 
 
             //TODO this is important, but not now
             // _spellMod = await JS.InvokeAsync<IJSObjectReference>("import", "/js/spellOverlay.js");
         }
 
-        if (document != null && !conteudoSetado)
+        if (_document != null && !_conteudoSetado)
         {
-            await JS.InvokeVoidAsync("setZenContent", editorDiv, document.Content ?? "");
-            await JS.InvokeVoidAsync("setupZenEditorSpanWrapper", editorDiv);
+            await Js.InvokeVoidAsync("setZenContent", _editorDiv, _document.Content ?? "");
+            await Js.InvokeVoidAsync("setupZenEditorSpanWrapper", _editorDiv);
 
-            conteudoSetado = true;
+            _conteudoSetado = true;
 
             if (_spellMod is not null)
             {
-                await _spellMod.InvokeVoidAsync("init", editorDiv, overlayRef);
-                overlayReady = true;
+                await _spellMod.InvokeVoidAsync("init", _editorDiv, _overlayRef);
+                _overlayReady = true;
 
                 // primeira pintura (opcional)
-                await _spellMod.InvokeVoidAsync("check", editorDiv, overlayRef);
+                await _spellMod.InvokeVoidAsync("check", _editorDiv, _overlayRef);
             }
         }
     }
@@ -177,46 +169,46 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        document = await DbManager.GetRecordById<long, Document>("documents", Id);
-        conteudoSetado = false; // Garante que o conteúdo será setado ao renderizar
-        document.LastOpened = DateTime.Now;
-        var record = new StoreRecord<Document> { Storename = "documents", Data = document };
+        _document = await DbManager.GetRecordById<long, Document>("documents", Id);
+        _conteudoSetado = false; // Garante que o conteúdo será setado ao renderizar
+        _document.LastOpened = DateTime.Now;
+        var record = new StoreRecord<Document> { Storename = "documents", Data = _document };
         await DbManager.UpdateRecord(record);
 
-        savedDocSize = GetDocumentSizeInBytes();
+        _savedDocSize = GetDocumentSizeInBytes();
     }
 
     //TODO a class to save delete update in db
     private async Task Salvar()
     {
         // Captura o conteúdo editado
-        document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
-        document.LastModified = DateTime.Now;
-        document.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(document);
+        _document!.Content = await Js.InvokeAsync<string>("getZenContent", _editorDiv);
+        _document.LastModified = DateTime.Now;
+        _document.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(_document);
 
-        var record = new StoreRecord<Document> { Storename = "documents", Data = document };
+        var record = new StoreRecord<Document> { Storename = "documents", Data = _document };
         await DbManager.UpdateRecord(record);
-        isSaved = true;
-        savedDocSize = GetDocumentSizeInBytes();
-        await JS.InvokeVoidAsync("removeBeforeUnloadHandler"); // Remove o aviso
+        _isSaved = true;
+        _savedDocSize = GetDocumentSizeInBytes();
+        await Js.InvokeVoidAsync("removeBeforeUnloadHandler"); // Remove o aviso
         StateHasChanged();
     }
 
-    private CancellationTokenSource debounceCts;
+    private CancellationTokenSource? _debounceCts;
 
     private async Task OnContentChanged()
     {
-        isSaved = false;
-        document.Content = await JS.InvokeAsync<string>("getZenContent", editorDiv);
+        _isSaved = false;
+        _document!.Content = await Js.InvokeAsync<string>("getZenContent", _editorDiv);
 
-        if (overlayReady && _spellMod is not null)
-            await _spellMod.InvokeVoidAsync("check", editorDiv, overlayRef);
+        if (_overlayReady && _spellMod is not null)
+            await _spellMod.InvokeVoidAsync("check", _editorDiv, _overlayRef);
 
-        await JS.InvokeVoidAsync("addBeforeUnloadHandler");
+        await Js.InvokeVoidAsync("addBeforeUnloadHandler");
 
-        debounceCts?.Cancel();
-        debounceCts = new CancellationTokenSource();
-        var token = debounceCts.Token;
+        _debounceCts?.Cancel();
+        _debounceCts = new CancellationTokenSource();
+        var token = _debounceCts.Token;
 
         _ = Task.Run(async () =>
         {
@@ -244,8 +236,8 @@ else
     {
         try
         {
-            await JS.InvokeVoidAsync("unregisterEditorShortcuts");
-            await JS.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents");
+            await Js.InvokeVoidAsync("unregisterEditorShortcuts");
+            await Js.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents");
 
             // if (overlayReady && _spellMod is not null)
             //     await _spellMod.InvokeVoidAsync("dispose", editorDiv);
@@ -254,7 +246,7 @@ else
         }
         finally
         {
-            dotNetRef?.Dispose();
+            _dotNetRef?.Dispose();
         }
     }
 
@@ -263,17 +255,17 @@ else
     private void ExportSaveHaiku()
     {
         Debug.WriteLine("Export called");
-        FileExporter.ExportHaikuDoc(document);
+        FileExporter.ExportHaikuDoc(_document!);
     }
 
     private void OnSelectedFont(string font)
     {
-        selectedFont = font; // keeps parent state in sync with toolbar
+        _selectedFont = font; // keeps parent state in sync with toolbar
     }
 
     private async Task OnFontFamilyChanged(string font)
     {
-        await JS.InvokeVoidAsync("selectionStateInterop.applyFontFamily", font);
+        await Js.InvokeVoidAsync("selectionStateInterop.applyFontFamily", font);
 
         // Optional: refresh formatting like you do for size/align
         await Task.Delay(50);
@@ -289,18 +281,18 @@ else
 
     private async Task OnFontColorChanged(string color)
     {
-        await JS.InvokeVoidAsync("selectionStateInterop.applyFontColor", color);
+        await Js.InvokeVoidAsync("selectionStateInterop.applyFontColor", color);
     }
 
     private async Task OnHighlightColorChanged(string color)
     {
-        await JS.InvokeVoidAsync("selectionStateInterop.applyHighlightColor", color);
+        await Js.InvokeVoidAsync("selectionStateInterop.applyHighlightColor", color);
     }
 
     private async Task OnFontSizeChanged(string size)
     {
         selectedFontSize = size;
-        await JS.InvokeVoidAsync("applyFontSize", size);
+        await Js.InvokeVoidAsync("applyFontSize", size);
 
         // Aguarda o DOM atualizar e então verifica o estado
         await Task.Delay(50);
@@ -309,7 +301,7 @@ else
 
     private async Task OnTextAlignChanged(string align)
     {
-        await JS.InvokeVoidAsync("applyTextAlign", align);
+        await Js.InvokeVoidAsync("applyTextAlign", align);
 
         // Aguarda o DOM atualizar e então verifica o estado
         await Task.Delay(50);

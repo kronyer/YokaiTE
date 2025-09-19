@@ -1,0 +1,33 @@
+﻿.document-grid-item {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, border-bottom-width 0.3s ease-in-out;
+}
+
+.document-grid-item:hover {
+    background: #D7D7D7;
+}
+
+
+.grid-item-name{
+    display: flex;
+    width: 50%;
+    align-items: center;
+    gap: 24px;
+}
+
+.grid-item-date{
+    color: #5D5D5D;
+    font-family: "Cabinet Grotesk", serif;
+    font-size: 16px;
+    font-style: normal;
+    font-weight: 400;
+    width: 25%;
+    line-height: normal;
+    display:flex;
+    justify-content:space-between;
+}

@@ -1,0 +1,43 @@
+﻿@using YokaiTE.Utils
+@using YokaiTE.Enums
+@using YokaiTE.Interfaces
+
+<div @oncontextmenu:preventDefault="true"
+     @onclick="OnClickHandler"
+     @oncontextmenu="OnContextMenuHandler"
+     class="document-grid-item">
+    <div class="grid-item-name">
+        <img src="svg/doc-icon.svg" alt="Icon"/>
+        <span class="doc-title-grid">@Document.Title</span>
+    </div>
+    <div class="grid-item-date">
+        @FileInfoProvider.GetTimeAgo(Document.LastModified)
+    </div>
+    <div class="grid-item-date">
+        <span>
+            @FileInfoProvider.GetTimeAgo(Document.CreatedAt)
+        </span>
+        <button @onclick="() => OnContextMenuHandler(null)">
+            <img src="svg/verticalDots.svg" alt="Icon"/>
+        </button>
+    </div>
+</div>
+
+@code {
+    [Parameter] public Document Document { get; set; }
+    [Parameter] public IFileInfoProvider FileInfoProvider { get; set; }
+    [Parameter] public EventCallback OnClick { get; set; }
+    [Parameter] public EventCallback<MouseEventArgs> OnContextMenu { get; set; }
+
+    private async Task OnClickHandler(MouseEventArgs e)
+    {
+        if (OnClick.HasDelegate)
+            await OnClick.InvokeAsync();
+    }
+
+    private async Task OnContextMenuHandler(MouseEventArgs e)
+    {
+        if (OnContextMenu.HasDelegate)
+            await OnContextMenu.InvokeAsync(e);
+    }
+}

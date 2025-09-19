@@ -7,12 +7,10 @@
 
 .document-card {
     display: flex;
-    width: 194px;
     flex-direction: column;
     align-items: flex-start;
     gap: 8px;
     cursor:pointer;
-
     height: 300px;
     width: calc(300px * 0.707);
 }
@@ -31,7 +29,7 @@
 
 .doc-title {
     color: #181818;
-    font-family: "Cabinet Grotesk";
+    font-family: "Cabinet Grotesk", serif;
     font-size: 16px;
     font-style: normal;
     font-weight: 700;
@@ -44,7 +42,7 @@
 
 .doc-subtitle {
     color: #606060;
-    font-family: "Cabinet Grotesk";
+    font-family: "Cabinet Grotesk", serif;
     font-size: 12px;
     font-style: normal;
     font-weight: 700;

@@ -1,4 +1,5 @@
 ﻿using Microsoft.JSInterop;
+using YokaiTE.Interfaces;
 
 namespace YokaiTE.Utils.TextHandlers;
 
@@ -31,12 +32,4 @@ public class TextFormatter : ITextFormatter
     }
     
     
-}
-
-public interface ITextFormatter
-{
-    Task ApplyBoldAsync();
-    Task ApplyItalicAsync();
-    Task ApplyUnderline();
-    Task ApplyStrikethrough();
 }

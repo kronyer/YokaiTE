@@ -1,4 +1,6 @@
-﻿namespace YokaiTE.Utils;
+﻿using YokaiTE.Interfaces;
+
+namespace YokaiTE.Utils;
 
 public class FileInfoProvider : IFileInfoProvider
 {
@@ -23,10 +25,4 @@ public class FileInfoProvider : IFileInfoProvider
             return $"{(int)ts.TotalHours} hora{(ts.TotalHours < 2 ? "" : "s")}";
         return $"{(int)ts.TotalDays} dia{(ts.TotalDays < 2 ? "" : "s")}";
     }
-}
-
-public interface IFileInfoProvider
-{
-    string GetSubtitle(Document doc, string SelectedField);
-    string GetTimeAgo(DateTime dateTime);
 }

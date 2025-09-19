@@ -7,6 +7,7 @@
 @using TG.Blazor.IndexedDB
 @using YokaiTE.Component
 @using YokaiTE.Enums
+@using YokaiTE.Interfaces
 @using YokaiTE.Utils
 @using YokaiTE.Modals
 
@@ -104,28 +105,11 @@
 
                     @foreach (var doc in documents)
                     {
-                        <div @oncontextmenu:preventDefault="true"
-                             @onclick="(e => EditDocument(doc.Id))"
-                             @oncontextmenu="(e => ShowContextMenu(e, doc))"
-                             class="document-grid-item">
-                            <div class="grid-item-name">
-                                <img src="svg/doc-icon.svg" alt="Icon"/>
-                                <span class="doc-title-grid">@doc.Title</span>
-                            </div>
-                            <div class="grid-item-date">
-                                @FileInfoProvider.GetTimeAgo(doc.LastModified)
-                            </div>
-                            <div class="grid-item-date">
-                            <span>
-                                @FileInfoProvider.GetTimeAgo(doc.CreatedAt)
+                        <DocumentGridItem Document="doc"
+                                          FileInfoProvider="FileInfoProvider"
+                                          OnClick="() => EditDocument(doc.Id)"
+                                          OnContextMenu="e => ShowContextMenu(e, doc)" />
 
-                            </span>
-                                <button @onclick="(e => ShowContextMenu(e, doc))">
-                                    <img src="svg/verticalDots.svg" alt="Icon"/>
-                                </button>
-
-                            </div>
-                        </div>
                     }
                 </div>
             }
