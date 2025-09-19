@@ -7,7 +7,13 @@ namespace YokaiTE.Utils;
 
 public class FileExporter : IFileExporter
 {
-    public async Task ExportHaikuDoc(Document document, IJSRuntime JS)
+    IJSRuntime _JS;
+
+    public FileExporter(IJSRuntime JS)
+    {
+        _JS = JS;
+    }
+    public async Task ExportHaikuDoc(Document document)
     {
         if (document == null) return;
 
@@ -40,7 +46,7 @@ public class FileExporter : IFileExporter
         // Converte para base64 e chama JS para download
         var base64 = Convert.ToBase64String(result);
         var safeName = string.IsNullOrWhiteSpace(document.Title) ? "document.haiku" : MakeSafeFilename(document.Title) + ".haiku";
-        await JS.InvokeVoidAsync("saveFileFromBase64", safeName, base64, "application/octet-stream");
+        await _JS.InvokeVoidAsync("saveFileFromBase64", safeName, base64, "application/octet-stream");
     }
     
     // Helper interno para sanitizar nome de ficheiro
@@ -62,5 +68,5 @@ public class FileExporter : IFileExporter
 
 public interface IFileExporter
 {
-    Task ExportHaikuDoc(Document document, IJSRuntime JS);
+    Task ExportHaikuDoc(Document document);
 }

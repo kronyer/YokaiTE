@@ -12,6 +12,8 @@
 @inject IndexedDBManager DbManager
 @inject NavigationManager Navigation
 @inject IFileExporter FileExporter
+@inject IJSRuntime JS 
+
 @implements IAsyncDisposable
 
 <PageTitle>Editar Documento</PageTitle>
@@ -34,21 +36,18 @@ else
                  OnTextAlignChanged="OnTextAlignChanged"
                  SelectedFontSize="@selectedFontSize"
                  Document="document"
-    IsSaved="isSaved"
-    BackHome="BackHome"
-    TitleChanged="SaveTitleEdit"
-    SelectedFont="@selectedFont"
-    SelectedFontChanged="OnSelectedFont"
-    OnBold="ApplyBoldAsync"
-    OnItalic="ApplyItalicAsync"
-    OnUnderline="ApplyUnderline"
-    OnStrikeThrough="ApplyStrikethrough"/>
+                 IsSaved="isSaved"
+                 BackHome="BackHome"
+                 TitleChanged="SaveTitleEdit"
+                 SelectedFont="@selectedFont"
+                 SelectedFontChanged="OnSelectedFont"
+    />
     <div class="edit-page">
 
         <div class="editor-wrap">
             <div class="zen-editor"
                  contenteditable="true"
-                 
+
                  @oninput="OnContentChanged"
                  @ref="editorDiv"
                  style="background:@(document?.BackgroundColor ?? "#F2F2F2")">
@@ -57,33 +56,62 @@ else
         </div>
 
 
-        
     </div>
-    <DocInfoFooter CharCount="charCount" WordCount="wordCount" ByteCount="savedDocSize" />
+    <DocInfoFooter CharCount="charCount" WordCount="wordCount" ByteCount="savedDocSize"/>
 }
 
 @code {
+
+    //TODO how can i save these states
+    #region doc info
     private bool isBold, isItalic, isUnderline, isStrike;
     private string currentTextAlign = "left";
-
     private string selectedFontSize = "16px";
-
-    private IJSObjectReference? _selMod;
-
-    [Parameter] public long Id { get; set; }
-    private ElementReference overlayRef;
 
     private int charCount => string.IsNullOrEmpty(document?.Content)
         ? 0
         : System.Net.WebUtility.HtmlDecode(
             System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
-          ).Length;
+        ).Length;
+
     private int wordCount => string.IsNullOrWhiteSpace(document?.Content)
-    ? 0
-    : System.Net.WebUtility.HtmlDecode(
-        System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
-      ).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+        ? 0
+        : System.Net.WebUtility.HtmlDecode(
+            System.Text.RegularExpressions.Regex.Replace(document.Content, "<.*?>", string.Empty)
+        ).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+
     private int savedDocSize = 0;
+    private string selectedFont = string.Empty;
+
+    private int GetDocumentSizeInBytes()
+    {
+        if (document == null)
+            return 0;
+
+        var json = System.Text.Json.JsonSerializer.Serialize(document);
+
+        return System.Text.Encoding.UTF8.GetByteCount(json);
+    }
+    [JSInvokable]
+    public async Task UpdateSelectionFormatting()
+    {
+        var state = await JS.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
+        isBold = state.Bold;
+        isItalic = state.Italic;
+        isUnderline = state.Underline;
+        isStrike = state.Strike;
+        currentTextAlign = state.TextAlign;
+        selectedFontSize = state.FontSize; // Atualiza o tamanho detectado
+        StateHasChanged();
+    }
+    
+#endregion
+    private IJSObjectReference? _selMod;
+
+    [Parameter] public long Id { get; set; }
+    private ElementReference overlayRef;
+
+
     private Document document;
     private ElementReference editorDiv;
 
@@ -98,7 +126,6 @@ else
     private bool overlayReady;
     // bool showExport = false;
 
-    private string selectedFont = string.Empty;
 
     private async Task SaveTitleEdit(string editTitle)
     {
@@ -107,25 +134,9 @@ else
             document.Title = editTitle;
             await Salvar();
         }
+
         isEditingTitle = false;
         StateHasChanged();
-    }
-
-    private int GetDocumentSizeInBytes()
-    {
-        if (document == null)
-            return 0;
-
-        var json = System.Text.Json.JsonSerializer.Serialize(document);
-
-        return System.Text.Encoding.UTF8.GetByteCount(json);
-    }
-
-
-    private async void ExportPdf()
-    {
-        if (document == null) return;
-        await JS.InvokeVoidAsync("exportPdfJs", document.Title, document.Content ?? "");
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -161,18 +172,8 @@ else
         }
     }
 
-    [JSInvokable]
-    public async Task UpdateSelectionFormatting()
-    {
-        var state = await JS.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
-        isBold = state.Bold;
-        isItalic = state.Italic;
-        isUnderline = state.Underline;
-        isStrike = state.Strike;
-        currentTextAlign = state.TextAlign;
-        selectedFontSize = state.FontSize; // Atualiza o tamanho detectado
-        StateHasChanged();
-    }
+    
+    
 
     protected override async Task OnInitializedAsync()
     {
@@ -183,9 +184,9 @@ else
         await DbManager.UpdateRecord(record);
 
         savedDocSize = GetDocumentSizeInBytes();
-
     }
 
+    //TODO a class to save delete update in db
     private async Task Salvar()
     {
         // Captura o conteúdo editado
@@ -244,7 +245,7 @@ else
         try
         {
             await JS.InvokeVoidAsync("unregisterEditorShortcuts");
-            await JS.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents"); 
+            await JS.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents");
 
             // if (overlayReady && _spellMod is not null)
             //     await _spellMod.InvokeVoidAsync("dispose", editorDiv);
@@ -257,13 +258,12 @@ else
         }
     }
 
-    [Inject] IJSRuntime JS { get; set; }
 
     [JSInvokable]
     private void ExportSaveHaiku()
     {
         Debug.WriteLine("Export called");
-        FileExporter.ExportHaikuDoc(document, JS);
+        FileExporter.ExportHaikuDoc(document);
     }
 
     private void OnSelectedFont(string font)
@@ -279,56 +279,42 @@ else
         await Task.Delay(50);
         await UpdateSelectionFormatting();
     }
+
     private async Task BackHome()
     {
         await Salvar();
         Navigation.NavigateTo("/");
     }
-    private async Task ApplyBoldAsync()
-    {
-        await JS.InvokeVoidAsync("applyBold");
-    }
-    private async Task ApplyItalicAsync()
-    {
-        await JS.InvokeVoidAsync("applyItalic");
-    }
 
-    private async Task ApplyUnderline()
-    {
-        await JS.InvokeVoidAsync("applyUnderline");
-    }
-
-    private async Task ApplyStrikethrough()
-    {
-        await JS.InvokeVoidAsync("applyStrikethrough");
-    }
 
     private async Task OnFontColorChanged(string color)
     {
         await JS.InvokeVoidAsync("selectionStateInterop.applyFontColor", color);
     }
+
     private async Task OnHighlightColorChanged(string color)
     {
         await JS.InvokeVoidAsync("selectionStateInterop.applyHighlightColor", color);
     }
+
     private async Task OnFontSizeChanged(string size)
     {
         selectedFontSize = size;
         await JS.InvokeVoidAsync("applyFontSize", size);
-    
+
         // Aguarda o DOM atualizar e então verifica o estado
         await Task.Delay(50);
         await UpdateSelectionFormatting();
     }
+
     private async Task OnTextAlignChanged(string align)
     {
-            await JS.InvokeVoidAsync("applyTextAlign", align);
-    
-            // Aguarda o DOM atualizar e então verifica o estado
-            await Task.Delay(50);
-            await UpdateSelectionFormatting();
+        await JS.InvokeVoidAsync("applyTextAlign", align);
+
+        // Aguarda o DOM atualizar e então verifica o estado
+        await Task.Delay(50);
+        await UpdateSelectionFormatting();
     }
-    
 
 
     public sealed class SelectionState

@@ -4,6 +4,7 @@ using MudBlazor.Services;
 using TG.Blazor.IndexedDB;
 using YokaiTE;
 using YokaiTE.Utils;
+using YokaiTE.Utils.TextHandlers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
 builder.RootComponents.Add<App>("#app");
@@ -12,6 +13,9 @@ builder.RootComponents.Add<HeadOutlet>("head::after");
 builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.HostEnvironment.BaseAddress) });
 
 builder.Services.AddScoped<IFileExporter, FileExporter>();
+builder.Services.AddScoped<IFileImporter, FileImporter>();
+builder.Services.AddScoped<ITextFormatter, TextFormatter>();
+builder.Services.AddScoped<IFileInfoProvider, FileInfoProvider>();
 
 builder.Services.AddMudServices();
 

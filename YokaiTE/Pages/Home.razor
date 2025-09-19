@@ -6,7 +6,6 @@
 @using System.Text.Json
 @using TG.Blazor.IndexedDB
 @using YokaiTE.Component
-@using YokaiTE.Data
 @using YokaiTE.Enums
 @using YokaiTE.Utils
 @using YokaiTE.Modals
@@ -14,144 +13,130 @@
 @inject IndexedDBManager DbManager
 @inject NavigationManager Navigation
 @inject IFileExporter FileExporter
+@inject IFileImporter FileImporter
 @inject IJSRuntime JsRuntime
-
+@inject IFileInfoProvider FileInfoProvider
 
 <PageTitle>Home</PageTitle>
 
 @if (showRenameModal && selectedDocument != null)
 {
-    <RenameDocumentModal Document="selectedDocument" OnClose="() => showRenameModal = false" />
+    <RenameDocumentModal Document="selectedDocument" OnClose="() => showRenameModal = false"/>
 }
-<CreateDocumentModal Visible="@showCreateModal" VisibleChanged="@(v => showCreateModal = v)" OnSave="SaveDocument" />
+<CreateDocumentModal Visible="@showCreateModal" VisibleChanged="@(v => showCreateModal = v)" OnSave="SaveDocument"/>
 <DocumentContextMenu Visible="@showContextMenu"
                      VisibleChanged="@(v => showContextMenu = v)"
                      OnRename="OnRename"
                      OnDelete="OnDelete"
                      OnExport="OnExport"
                      Top="@contextMenuTop"
-                     Left="@contextMenuLeft" />
+                     Left="@contextMenuLeft"/>
 <div id="drop-zone" class="top-drop-zone">
-<div class="top-bar">
+    <div class="top-bar">
 
-    <nav class="nav-container">
-        <div @onclick="NavigateHome" class="logo-img">
-            <img src="svg/logo.svg" alt="New doc" />
-        </div>
-
-        <SearchInput ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..." />
-
-        <div style="width:106px"></div>
-    </nav>
-</div>
-<div id="shadow" class="upload-shadow"></div>
-<div class="page">
-    <div class="documents">
-        <div class="top-container">
-            <span class="page-label">Meus arquivos</span>
-            <div class="order-container">
-                <DualSelect Options="OrderOptions"
-                            Value="@SelectedField"
-                            ValueChanged="@OnOrderFieldChanged"
-                            Order="@SelectedOrder"
-                            OrderChanged="@OnOrderDirectionChanged" />
-
-                <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade" />
-
+        <nav class="nav-container">
+            <div @onclick="NavigateHome" class="logo-img">
+                <img src="svg/logo.svg" alt="New doc"/>
             </div>
-        </div>
 
-        @if (isCardView)
-        {
-            <div class="doc-list-container">
-                <div @onclick="ShowCreateModal" class="document-card">
-                    <div class="card-preview-create">
-                        <img src="svg/plus.svg" alt="New doc" />
-                    </div>
-                    <div class="card-info">
-                        <span class="new-doc-span">Novo documento</span>
-                        <span></span>
-                    </div>
+            <SearchInput ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..."/>
+
+            <div style="width:106px"></div>
+        </nav>
+    </div>
+    <div id="shadow" class="upload-shadow"></div>
+    <div class="page">
+        <div class="documents">
+            <div class="top-container">
+                <span class="page-label">Meus arquivos</span>
+                <div class="order-container">
+                    <DualSelect Options="OrderOptions"
+                                Value="@SelectedField"
+                                ValueChanged="@OnOrderFieldChanged"
+                                Order="@SelectedOrder"
+                                OrderChanged="@OnOrderDirectionChanged"/>
+
+                    <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade"/>
+
                 </div>
-                @foreach (var doc in documents)
-                {
-                    <div @oncontextmenu:preventDefault="true"
-                         @onclick="(e => EditDocument(doc.Id))" class="document-card"
-                         @oncontextmenu="(e => ShowContextMenu(e, doc))
-                         ">
-                        <div class="card-preview">
-                            @if (!string.IsNullOrEmpty(doc.PreviewPngBase64))
-                            {
-                                <img alt="Preview"
-                                     style="width:100%;height:100%;border-radius:4px;display:block;"
-                                     src="@($"data:image/png;base64,{doc.PreviewPngBase64}")" />
-                            }
+            </div>
+
+            @if (isCardView)
+            {
+                <div class="doc-list-container">
+                    <div @onclick="ShowCreateModal" class="document-card">
+                        <div class="card-preview-create">
+                            <img src="svg/plus.svg" alt="New doc"/>
                         </div>
                         <div class="card-info">
-                            <span class="doc-title">@doc.Title</span>
-                            <span class="doc-subtitle">
-                                @GetSubtitle(doc)
-                            </span>
+                            <span class="new-doc-span">Novo documento</span>
+                            <span></span>
                         </div>
                     </div>
-                }
-            </div>
-        }
-        else
-        {
-            <div class="doc-grid-container">
-                <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
-                    <img src="svg/newFile.svg" alt="New doc" />
+                    @foreach (var doc in documents)
+                    {
+                        <DocumentCard Document="doc"
+                                      SelectedField="SelectedField"
+                                      FileInfoProvider="FileInfoProvider"
+                                      OnClick="() => EditDocument(doc.Id)"
+                                      OnContextMenu="e => ShowContextMenu(e, doc)" />
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="doc-grid-container">
+                    <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
+                        <img src="svg/newFile.svg" alt="New doc"/>
 
-                    <span>Novo arquivo</span>
-                </button>
-                <div class="grid-label-container">
-                    <span class="w-50">Nome</span>
-                    <span class="w-25">Editado por ultimo há</span>
-                    <div class="w-25 d-flex">
+                        <span>Novo arquivo</span>
+                    </button>
+                    <div class="grid-label-container">
+                        <span class="w-50">Nome</span>
+                        <span class="w-25">Editado por ultimo há</span>
+                        <div class="w-25 d-flex">
                         <span>
                             Criado há
                         </span>
-                        <div style="width:16px; height:16px;"></div>
+                            <div style="width:16px; height:16px;"></div>
+                        </div>
                     </div>
-                </div>
 
-                @foreach (var doc in documents)
-                {
-                    <div @oncontextmenu:preventDefault="true"
-                         @onclick="(e => EditDocument(doc.Id))"
-                         @oncontextmenu="(e => ShowContextMenu(e, doc))"
-                         class="document-grid-item">
-                        <div class="grid-item-name">
-                            <img src="svg/doc-icon.svg" alt="Icon" />
-                            <span class="doc-title-grid">@doc.Title</span>
-                        </div>
-                        <div class="grid-item-date">
-                            @GetTimeAgo(doc.LastModified)
-                        </div>
-                        <div class="grid-item-date">
+                    @foreach (var doc in documents)
+                    {
+                        <div @oncontextmenu:preventDefault="true"
+                             @onclick="(e => EditDocument(doc.Id))"
+                             @oncontextmenu="(e => ShowContextMenu(e, doc))"
+                             class="document-grid-item">
+                            <div class="grid-item-name">
+                                <img src="svg/doc-icon.svg" alt="Icon"/>
+                                <span class="doc-title-grid">@doc.Title</span>
+                            </div>
+                            <div class="grid-item-date">
+                                @FileInfoProvider.GetTimeAgo(doc.LastModified)
+                            </div>
+                            <div class="grid-item-date">
                             <span>
-                                @GetTimeAgo(doc.CreatedAt)
+                                @FileInfoProvider.GetTimeAgo(doc.CreatedAt)
 
                             </span>
-                            <button @onclick="(e => ShowContextMenu(e, doc))">
-                                <img src="svg/verticalDots.svg" alt="Icon" />
-                            </button>
+                                <button @onclick="(e => ShowContextMenu(e, doc))">
+                                    <img src="svg/verticalDots.svg" alt="Icon"/>
+                                </button>
 
+                            </div>
                         </div>
-                    </div>
-                }
-            </div>
-        }
+                    }
+                </div>
+            }
 
+        </div>
     </div>
-</div>
 </div>
 
 @code {
     private DotNetObjectReference<Home> dotNetRef;
 
-    private YokaiDb db;
     private string _orderBy = string.Empty;
     private bool isCardView = true;
 
@@ -175,87 +160,17 @@
     {
         try
         {
-            var bytes = Convert.FromBase64String(base64);
+            await FileImporter.ImportHaikuDoc(base64, filename);
 
-            var header = Encoding.ASCII.GetBytes("YOKAIHAIKU");
-            if (bytes.Length < header.Length + 1) return; //because its an empty file
-
-            for (int i = 0; i < header.Length; i++)
-            {
-                if (bytes[i] != header[i]) return; //compare if the header is of YOKAIHAIKU
-            }
-
-            var version = bytes[header.Length]; // atualmente não usado, queda suave se necessário
-
-            var compressedLen = bytes.Length - header.Length - 1;
-            if (compressedLen <= 0) return;
-
-            var compressed = new byte[compressedLen];
-            Buffer.BlockCopy(bytes, header.Length + 1, compressed, 0, compressedLen);
-
-            string json;
-            using (var inMs = new MemoryStream(compressed))
-            using (var gzip = new GZipStream(inMs, CompressionMode.Decompress))
-            using (var reader = new StreamReader(gzip, Encoding.UTF8))
-            {
-                json = await reader.ReadToEndAsync();
-            }
-
-            var imported = JsonSerializer.Deserialize<Document>(json);
-            if (imported == null) return;
-
-            // Reset id to allow IndexedDB criar um novo registro
-            imported.Id = 0;
-            imported.CreatedAt = DateTime.Now;
-            imported.LastModified = DateTime.Now;
-            imported.LastOpened = DateTime.Now;
-
-            // Opcional: gerar preview se existir utilitário
-            try
-            {
-                imported.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(imported);
-            }
-            catch { /* ignore se não disponível */ }
-
-            var record = new StoreRecord<Document> { Storename = "documents", Data = imported };
-            await DbManager.AddRecord(record);
-
-            // Recarrega lista e navega para o novo documento (mesma abordagem do SaveDocument)
-            var loaded = await DbManager.GetRecords<Document>("documents");
-            var novoDoc = loaded
-                .OrderByDescending(d => d.LastModified)
-                .FirstOrDefault(d => d.Title == imported.Title && d.LastModified.Date == imported.LastModified.Date && d.LastModified.TimeOfDay.TotalSeconds - imported.LastModified.TimeOfDay.TotalSeconds < 5);
-
-                await LoadDocuments();
+            await LoadDocuments();
         }
-        catch
+        catch (Exception ex)
         {
+            Debug.WriteLine(ex.Message);
             // fail silently ou log
         }
     }
-    
-    private string GetSubtitle(Document doc)
-    {
-        return SelectedField switch
-        {
-            "Data de edição" => $"Editado por último há {GetTimeAgo(doc.LastModified)}",
-            "Data de criação" => $"Criado em {doc.CreatedAt.ToString("dd/MM/yy")}",
-            _ => $"Aberto por último há {GetTimeAgo(doc.LastOpened)}"
-        };
-    }
 
-    private string GetTimeAgo(DateTime dateTime)
-    {
-        var ts = DateTime.Now - dateTime;
-        if (ts.TotalMinutes < 1)
-            return "agora mesmo";
-        if (ts.TotalMinutes < 60)
-            return $"{(int)ts.TotalMinutes} minuto{(ts.TotalMinutes < 2 ? "" : "s")}";
-        if (ts.TotalHours < 24)
-            return $"{(int)ts.TotalHours} hora{(ts.TotalHours < 2 ? "" : "s")}";
-        return $"{(int)ts.TotalDays} dia{(ts.TotalDays < 2 ? "" : "s")}";
-    }
-    
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
@@ -286,7 +201,7 @@
             }
         }
     }
-    
+
     private class ImportPayload
     {
         public string Base64 { get; set; }
@@ -341,7 +256,7 @@
     {
         doc.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(doc);
 
-        
+
         var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
         await DbManager.AddRecord(record);
 
@@ -362,7 +277,6 @@
 
     List<Document> documents = new()
     {
-
     };
 
     private void SortDocuments()
@@ -412,6 +326,7 @@
         {
             documents = loadedDoc.ToList();
         }
+
         SortDocuments();
         StateHasChanged();
     }
@@ -430,6 +345,7 @@
             Debug.WriteLine("No selected doc");
             return;
         }
+
         await DbManager.DeleteRecord<long>("documents", selectedDocument.Id);
         await LoadDocuments();
     }
@@ -442,15 +358,16 @@
             return;
         }
 
-        FileExporter.ExportHaikuDoc(selectedDocument, JsRuntime);
+        await FileExporter.ExportHaikuDoc(selectedDocument);
     }
 
     private void NavigateHome()
     {
         Navigation.NavigateTo("/");
     }
+
     private List<string> OrderOptions = new() { "Data de abertura", "Data de edição", "Data de criação", "Ordem alfabética" };
-    
+
     public async ValueTask DisposeAsync()
     {
         try
@@ -462,4 +379,5 @@
             dotNetRef?.Dispose();
         }
     }
+
 }

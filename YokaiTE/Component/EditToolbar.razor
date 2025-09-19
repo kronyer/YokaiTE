@@ -1,3 +1,6 @@
+@using YokaiTE.Utils.TextHandlers
+@inject ITextFormatter TextFormatter
+
 <div class="document-edit-top" @onmousedown:preventDefault="true">
     <div class="doc-edit-top-nav">
         <div class="doc-edit-top-left">
@@ -49,17 +52,17 @@
             </button>
             <div style="width: 1px;
     height: 20px; background: #BABABA;"></div>
-            <button @onclick="OnBold" class="style-btn @(IsBold ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyBoldAsync" class="style-btn @(IsBold ? "active" : "")">
                 <img src="svg/bold.svg" alt="Font Hightlight" />
             </button>
-            <button @onclick="OnItalic" class="style-btn @(IsItalic ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyItalicAsync" class="style-btn @(IsItalic ? "active" : "")">
                 <img src="svg/italic.svg" alt="Font Hightlight" />
                 
             </button>
-            <button @onclick="OnStrikeThrough" class="style-btn @(IsStrikeThrough ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyStrikethrough" class="style-btn @(IsStrikeThrough ? "active" : "")">
                 <img src="svg/strikethrough.svg" alt="Font Hightlight" />
             </button>
-            <button @onclick="OnUnderline" class="style-btn @(IsUnderline ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyUnderline" class="style-btn @(IsUnderline ? "active" : "")">
                 <img src="svg/underline.svg" alt="Font Hightlight" />
             </button>
             <div style="width: 1px;
@@ -89,14 +92,13 @@
     [Parameter] public EventCallback<string> SelectedFontChanged { get; set; }
     [Parameter] public EventCallback<string> SelectedFontSizeChanged { get; set; }
     private bool isEditingTitle = false;
-    [Parameter] public EventCallback OnBold { get; set; }
-    [Parameter] public EventCallback OnItalic { get; set; }
-    [Parameter] public EventCallback OnStrikeThrough { get; set; }
-    [Parameter] public EventCallback OnUnderline { get; set; }
+    
+    
     [Parameter] public bool IsBold { get; set; }
     [Parameter] public bool IsItalic { get; set; }
     [Parameter] public bool IsUnderline { get; set; }
     [Parameter] public bool IsStrikeThrough { get; set; }
+    
     private string EditTitle = "";
     [Parameter] public string CurrentTextAlign { get; set; } = "left";
 
