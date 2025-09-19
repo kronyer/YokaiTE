@@ -1,4 +1,5 @@
 ﻿@page "/edit/{Id:long}"
+@using System.Diagnostics
 @using System.IO.Compression
 @using System.Text
 @using System.Text.Json
@@ -7,8 +8,10 @@
 @using QuestPDF.Infrastructure;
 @using Document = YokaiTE.Document
 @using YokaiTE.Component
+@using YokaiTE.Utils
 @inject IndexedDBManager DbManager
 @inject NavigationManager Navigation
+@inject IFileExporter FileExporter
 @implements IAsyncDisposable
 
 <PageTitle>Editar Documento</PageTitle>
@@ -256,6 +259,13 @@ else
 
     [Inject] IJSRuntime JS { get; set; }
 
+    [JSInvokable]
+    private void ExportSaveHaiku()
+    {
+        Debug.WriteLine("Export called");
+        FileExporter.ExportHaikuDoc(document, JS);
+    }
+
     private void OnSelectedFont(string font)
     {
         selectedFont = font; // keeps parent state in sync with toolbar
@@ -318,57 +328,8 @@ else
             await Task.Delay(50);
             await UpdateSelectionFormatting();
     }
-    [JSInvokable]
-    public async Task ExportSaveHaiku()
-    {
-        if (document == null) return;
+    
 
-        // Serializa JSON
-        var json = JsonSerializer.Serialize(document);
-
-        // Cria um buffer com um header mágico + versão + conteúdo comprimido
-        // Header: ASCII "YOKAIHAIKU" (10 bytes) + version byte (1)
-        var header = Encoding.ASCII.GetBytes("YOKAIHAIKU");
-        var version = new byte[] { 1 };
-
-        byte[] compressed;
-        using (var outMs = new MemoryStream())
-        {
-            // escreve header temporário depois (vamos concatenar)
-            using (var gzip = new GZipStream(outMs, CompressionLevel.Optimal, leaveOpen: true))
-            using (var writer = new StreamWriter(gzip, Encoding.UTF8))
-            {
-                writer.Write(json);
-            }
-            compressed = outMs.ToArray();
-        }
-
-        // Junta tudo: header + version + compressed
-        byte[] result = new byte[header.Length + version.Length + compressed.Length];
-        Buffer.BlockCopy(header, 0, result, 0, header.Length);
-        Buffer.BlockCopy(version, 0, result, header.Length, version.Length);
-        Buffer.BlockCopy(compressed, 0, result, header.Length + version.Length, compressed.Length);
-
-        // Converte para base64 e chama JS para download
-        var base64 = Convert.ToBase64String(result);
-        var safeName = string.IsNullOrWhiteSpace(document.Title) ? "document.haiku" : MakeSafeFilename(document.Title) + ".haiku";
-        await JS.InvokeVoidAsync("saveFileFromBase64", safeName, base64, "application/octet-stream");
-    }
-
-// Helper interno para sanitizar nome de ficheiro
-    private static string MakeSafeFilename(string name)
-    {
-        var invalids = Path.GetInvalidFileNameChars();
-        var sb = new StringBuilder();
-        foreach (var ch in name)
-        {
-            if (Array.IndexOf(invalids, ch) >= 0) sb.Append('_'); else sb.Append(ch);
-        }
-        // trim e limitar comprimento
-        var outName = sb.ToString().Trim();
-        if (outName.Length > 120) outName = outName.Substring(0, 120);
-        return outName;
-    }
 
     public sealed class SelectionState
     {

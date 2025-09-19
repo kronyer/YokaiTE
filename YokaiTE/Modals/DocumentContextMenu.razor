@@ -1,19 +1,25 @@
 ﻿@if (Visible)
 {
-    <div @oncontextmenu:preventDefault="true" 
+    <div @oncontextmenu:preventDefault="true"
          @oncontextmenu="OnBackdropClick"
          class="modal-back" @onclick="OnBackdropClick">
         <div class="context-menu-modal" style="top:@TopPx; left:@LeftPx;" @onclick:stopPropagation>
             <button class="context-btn rename" @onclick="Rename">
-                <img src="svg/pencil.svg" width="16" height="16" alt="Renomear" />
+                <img src="svg/pencil.svg" width="16" height="16" alt="Renomear"/>
                 <span>
                     Renomear
                 </span>
             </button>
             <button class="context-btn delete" @onclick="Delete">
-                <img src="svg/trash.svg" width="16" height="16" alt="Renomear" />
+                <img src="svg/trash.svg" width="16" height="16" alt="Renomear"/>
                 <span>
                     Excluir
+                </span>
+            </button>
+            <button class="context-btn delete" @onclick="Export">
+                <img src="svg/trash.svg" width="16" height="16" alt="Download"/>
+                <span>
+                    Download
                 </span>
             </button>
         </div>
@@ -25,6 +31,7 @@
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback OnRename { get; set; }
     [Parameter] public EventCallback OnDelete { get; set; }
+    [Parameter] public EventCallback OnExport { get; set; }
     [Parameter] public int Top { get; set; }
     [Parameter] public int Left { get; set; }
 
@@ -47,4 +54,11 @@
         await OnDelete.InvokeAsync();
         await VisibleChanged.InvokeAsync(false);
     }
+
+    private async Task Export()
+    {
+        await OnExport.InvokeAsync();
+        await VisibleChanged.InvokeAsync(false);
+    }
+
 }

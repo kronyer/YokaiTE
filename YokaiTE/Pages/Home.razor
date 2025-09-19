@@ -8,10 +8,12 @@
 @using YokaiTE.Component
 @using YokaiTE.Data
 @using YokaiTE.Enums
+@using YokaiTE.Utils
 @using YokaiTE.Modals
 
 @inject IndexedDBManager DbManager
 @inject NavigationManager Navigation
+@inject IFileExporter FileExporter
 @inject IJSRuntime JsRuntime
 
 
@@ -26,6 +28,7 @@
                      VisibleChanged="@(v => showContextMenu = v)"
                      OnRename="OnRename"
                      OnDelete="OnDelete"
+                     OnExport="OnExport"
                      Top="@contextMenuTop"
                      Left="@contextMenuLeft" />
 <div id="drop-zone" class="top-drop-zone">
@@ -175,11 +178,11 @@
             var bytes = Convert.FromBase64String(base64);
 
             var header = Encoding.ASCII.GetBytes("YOKAIHAIKU");
-            if (bytes.Length < header.Length + 1) return;
+            if (bytes.Length < header.Length + 1) return; //because its an empty file
 
             for (int i = 0; i < header.Length; i++)
             {
-                if (bytes[i] != header[i]) return;
+                if (bytes[i] != header[i]) return; //compare if the header is of YOKAIHAIKU
             }
 
             var version = bytes[header.Length]; // atualmente não usado, queda suave se necessário
@@ -429,6 +432,17 @@
         }
         await DbManager.DeleteRecord<long>("documents", selectedDocument.Id);
         await LoadDocuments();
+    }
+
+    private async Task OnExport()
+    {
+        if (selectedDocument is null)
+        {
+            Debug.WriteLine("No selected doc");
+            return;
+        }
+
+        FileExporter.ExportHaikuDoc(selectedDocument, JsRuntime);
     }
 
     private void NavigateHome()
