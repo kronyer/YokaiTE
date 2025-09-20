@@ -1,4 +1,6 @@
+@using System.ComponentModel.DataAnnotations
 @using YokaiTE.Interfaces
+@using YokaiTE.Utils
 @using YokaiTE.Utils.TextHandlers
 @inject ITextFormatter TextFormatter
 
@@ -9,19 +11,21 @@
                 <img src="svg/logo.svg" alt="Home" />
                 </button>
 
-            <div class="file-name-container">
+            <div style="position: relative" class="file-name-container">
                 <span class="file-name" @onclick="EnableTitleEdit" style="display:@(isEditingTitle ? "none" : "inline")">
                     @Document?.Title
                 </span>
                 <input class="file-name"
+                       @ref="titleInput"
                        @bind="EditTitle"
                        @bind:event="oninput"
                        @onblur="SaveTitleEdit"
                        @onkeydown="HandleTitleKeyDown"
-                       style="width:280px; max-width:280px; display:@(isEditingTitle ? "inline" : "none")" />
-                <button>
-                    <img src="svg/arrow_down.svg"  alt="Expandir" />
-                </button>
+                       style="display:@(isEditingTitle ? "block" : "none")"/>
+                <div class="options-btn">
+                    <button class="opt-btn">Arquivo</button>
+                    <button class="opt-btn">Ajuda</button>
+                </div>
             </div>
         </div>
         <div class="doc-edit-top-right">
@@ -40,7 +44,7 @@
             @if (!Document.IsSimple)
             {
             <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="OnFontFamilySelectChanged" Value="SelectedFont"></NormalSelect>
-            <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="OnFontSizeChanged" Value="@SelectedFontSize"></NormalSelect>
+            <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="OnFontSizeChanged" Value="@SelectionState.FontSize"></NormalSelect>
                 
             }
         </div>
@@ -53,31 +57,31 @@
             </button>
             <div style="width: 1px;
     height: 20px; background: #BABABA;"></div>
-            <button @onclick="TextFormatter.ApplyBoldAsync" class="style-btn @(IsBold ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyBoldAsync" class="style-btn @(SelectionState.Bold ? "active" : "")">
                 <img src="svg/bold.svg" alt="Font Hightlight" />
             </button>
-            <button @onclick="TextFormatter.ApplyItalicAsync" class="style-btn @(IsItalic ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyItalicAsync" class="style-btn @(SelectionState.Italic ? "active" : "")">
                 <img src="svg/italic.svg" alt="Font Hightlight" />
                 
             </button>
-            <button @onclick="TextFormatter.ApplyStrikethrough" class="style-btn @(IsStrikeThrough ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyStrikethrough" class="style-btn @(SelectionState.Strike ? "active" : "")">
                 <img src="svg/strikethrough.svg" alt="Font Hightlight" />
             </button>
-            <button @onclick="TextFormatter.ApplyUnderline" class="style-btn @(IsUnderline ? "active" : "")">
+            <button @onclick="TextFormatter.ApplyUnderline" class="style-btn @(SelectionState.Underline ? "active" : "")">
                 <img src="svg/underline.svg" alt="Font Hightlight" />
             </button>
             <div style="width: 1px;
         height: 20px; background: #BABABA;"></div>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")' class="style-btn @(CurrentTextAlign == "center" ? "active" : "")">
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")' class="style-btn @(SelectionState.TextAlign == "center" ? "active" : "")">
                 <img src="svg/center.svg" alt="Centralizar" />
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")' class="style-btn @(CurrentTextAlign == "full" ? "active" : "")">
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")' class="style-btn @(SelectionState.TextAlign == "full" ? "active" : "")">
                 <img src="svg/justify.svg" alt="Justificar" />
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")' class="style-btn @(CurrentTextAlign == "left" ? "active" : "")">
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")' class="style-btn @(SelectionState.TextAlign == "left" ? "active" : "")">
                 <img src="svg/left.svg" alt="Esquerda" />
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")' class="style-btn @(CurrentTextAlign == "right" ? "active" : "")">
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")' class="style-btn @(SelectionState.TextAlign == "right" ? "active" : "")">
                 <img src="svg/right.svg" alt="Direita" />
             </button>
         </div>
@@ -95,15 +99,12 @@
     private bool isEditingTitle = false;
     
     
-    [Parameter] public bool IsBold { get; set; }
-    [Parameter] public bool IsItalic { get; set; }
-    [Parameter] public bool IsUnderline { get; set; }
-    [Parameter] public bool IsStrikeThrough { get; set; }
+    private ElementReference titleInput;
+
+    [Parameter]
+    public required SelectionState SelectionState { get; set; }
     
     private string EditTitle = "";
-    [Parameter] public string CurrentTextAlign { get; set; } = "left";
-
-    [Parameter] public string SelectedFontSize { get; set; }
 
     private List<YokaiTE.Component.NormalSelect.SelectOption> possibleFonts = new()
 {
@@ -150,10 +151,13 @@
         new("Nenhum", "#FFFFFF")
     };
 
-    private void EnableTitleEdit()
+    private async void EnableTitleEdit()
     {
         isEditingTitle = true;
         EditTitle = Document?.Title ?? "";
+        // garante que o input foi renderizado antes de pedir foco
+        await Task.Yield();
+        await titleInput.FocusAsync();
     }
 
     private async Task SaveTitleEdit()

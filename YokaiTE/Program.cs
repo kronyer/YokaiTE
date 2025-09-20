@@ -5,6 +5,7 @@ using TG.Blazor.IndexedDB;
 using YokaiTE;
 using YokaiTE.Interfaces;
 using YokaiTE.Utils;
+using YokaiTE.Utils.FileHandlers;
 using YokaiTE.Utils.TextHandlers;
 
 var builder = WebAssemblyHostBuilder.CreateDefault(args);
@@ -17,9 +18,11 @@ builder.Services.AddScoped<IFileExporter, FileExporter>();
 builder.Services.AddScoped<IFileImporter, FileImporter>();
 builder.Services.AddScoped<ITextFormatter, TextFormatter>();
 builder.Services.AddScoped<IFileInfoProvider, FileInfoProvider>();
+builder.Services.AddScoped<IDocumentMetrics, DocumentMetrics>();
+builder.Services.AddScoped<IFileService, FileService>();
+builder.Services.AddScoped<IDocumentService, DocumentService>();
 
 builder.Services.AddMudServices();
-
 
 builder.Services.AddIndexedDB(dbStore =>
 {

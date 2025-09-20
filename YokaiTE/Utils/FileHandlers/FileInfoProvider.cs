@@ -1,6 +1,6 @@
 ﻿using YokaiTE.Interfaces;
 
-namespace YokaiTE.Utils;
+namespace YokaiTE.Utils.FileHandlers;
 
 public class FileInfoProvider : IFileInfoProvider
 {

@@ -5,11 +5,13 @@
 @using TG.Blazor.IndexedDB
 @using Document = YokaiTE.Document
 @using YokaiTE.Component
+@using YokaiTE.Interfaces
 @using YokaiTE.Utils
-@inject IndexedDBManager DbManager
+@using YokaiTE.Utils.TextHandlers
 @inject NavigationManager Navigation
-@inject IFileExporter FileExporter
-@inject IJSRuntime Js 
+@inject IJSRuntime Js
+@inject IDocumentMetrics DocumentMetrics
+@inject IDocumentService DocumentService
 
 @implements IAsyncDisposable
 
@@ -17,21 +19,20 @@
 
 @if (_document == null)
 {
+    // TODO loader aqui
+    //pm um loading aqui
     <p>Carregando...</p>
 }
 else
 {
-    <EditToolbar IsBold="isBold"
-                 IsItalic="isItalic"
-                 IsUnderline="isUnderline"
-                 IsStrikeThrough="isStrike"
-                 CurrentTextAlign="@currentTextAlign"
+    <EditToolbar SelectionState="@_docState"
+
                  OnFontColorChanged="OnFontColorChanged"
                  OnHighlightColorChanged="OnHighlightColorChanged"
                  OnFontSizeChanged="OnFontSizeChanged"
                  OnFontFamilyChanged="OnFontFamilyChanged"
                  OnTextAlignChanged="OnTextAlignChanged"
-                 SelectedFontSize="@selectedFontSize"
+
                  Document="_document"
                  IsSaved="_isSaved"
                  BackHome="BackHome"
@@ -44,81 +45,48 @@ else
         <div class="editor-wrap">
             <div class="zen-editor"
                  contenteditable="true"
-
                  @oninput="OnContentChanged"
                  @ref="_editorDiv"
                  style="background:@(_document?.BackgroundColor ?? "#F2F2F2")">
             </div>
             <canvas class="overlay" @ref="_overlayRef"></canvas>
         </div>
-
-
     </div>
-    <DocInfoFooter CharCount="CharCount" WordCount="WordCount" ByteCount="_savedDocSize"/>
+    <DocInfoFooter 
+        WordCount="DocumentMetrics.WordCount(_document!)"
+        CharCount="DocumentMetrics.CharCount(_document!)"
+        ByteCount="DocumentMetrics.GetDocumentSizeInBytes(_document!)"/>
 }
 
 @code {
 
-    //TODO how can i save these states
-    #region doc info
-    private bool isBold, isItalic, isUnderline, isStrike;
-    private string currentTextAlign = "left";
-    private string selectedFontSize = "16px";
-
-    private int CharCount => string.IsNullOrEmpty(_document?.Content)
-        ? 0
-        : System.Net.WebUtility.HtmlDecode(
-            System.Text.RegularExpressions.Regex.Replace(_document.Content, "<.*?>", string.Empty)
-        ).Length;
-
-    private int WordCount => string.IsNullOrWhiteSpace(_document?.Content)
-        ? 0
-        : System.Net.WebUtility.HtmlDecode(
-            System.Text.RegularExpressions.Regex.Replace(_document.Content, "<.*?>", string.Empty)
-        ).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
-
-    private int _savedDocSize;
-    private string _selectedFont = string.Empty;
-
-    private int GetDocumentSizeInBytes()
-    {
-        if (_document == null)
-            return 0;
-
-        var json = JsonSerializer.Serialize(_document);
-
-        return Encoding.UTF8.GetByteCount(json);
-    }
-    [JSInvokable]
-    public async Task UpdateSelectionFormatting()
-    {
-        var state = await Js.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
-        isBold = state.Bold;
-        isItalic = state.Italic;
-        isUnderline = state.Underline;
-        isStrike = state.Strike;
-        currentTextAlign = state.TextAlign;
-        selectedFontSize = state.FontSize; // Atualiza o tamanho detectado
-        StateHasChanged();
-    }
-    
-#endregion
-
     [Parameter] public long Id { get; set; }
+    private readonly SelectionState _docState = new();
     private ElementReference _overlayRef;
-
-
     private Document? _document;
     private ElementReference _editorDiv;
-
     private bool _conteudoSetado = false;
-
     private DotNetObjectReference<Edit>? _dotNetRef;
     private IJSObjectReference? _spellMod;
     private bool _isSaved = true;
     private bool _overlayReady;
-    // bool showExport = false;
 
+    //TODO pass the selected font to another area
+    private string _selectedFont = string.Empty;
+
+    [JSInvokable]
+    public async Task UpdateSelectionFormatting()
+    {
+        var state = await Js.InvokeAsync<SelectionState>("selectionStateInterop.getFormatting");
+        _docState.Bold = state.Bold;
+        _docState.Italic = state.Italic;
+        _docState.Underline = state.Underline;
+        _docState.Strike = state.Strike;
+
+        _docState.TextAlign = state.TextAlign;
+        _docState.FontSize = state.FontSize; // Atualiza o tamanho detectado
+        StateHasChanged();
+    }
 
     private async Task SaveTitleEdit(string editTitle)
     {
@@ -140,7 +108,6 @@ else
 
             //pm check bold etc
             await Js.InvokeVoidAsync("selectionStateInterop.registerSelectionEvents", _dotNetRef);
-
 
             //TODO this is important, but not now
             // _spellMod = await JS.InvokeAsync<IJSObjectReference>("import", "/js/spellOverlay.js");
@@ -164,33 +131,18 @@ else
         }
     }
 
-    
-    
-
     protected override async Task OnInitializedAsync()
     {
-        _document = await DbManager.GetRecordById<long, Document>("documents", Id);
-        _conteudoSetado = false; // Garante que o conteúdo será setado ao renderizar
-        _document.LastOpened = DateTime.Now;
-        var record = new StoreRecord<Document> { Storename = "documents", Data = _document };
-        await DbManager.UpdateRecord(record);
-
-        _savedDocSize = GetDocumentSizeInBytes();
+        _document = await DocumentService.LoadAsync(Id);
+        _conteudoSetado = false;
     }
 
-    //TODO a class to save delete update in db
     private async Task Salvar()
     {
-        // Captura o conteúdo editado
         _document!.Content = await Js.InvokeAsync<string>("getZenContent", _editorDiv);
-        _document.LastModified = DateTime.Now;
-        _document.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(_document);
-
-        var record = new StoreRecord<Document> { Storename = "documents", Data = _document };
-        await DbManager.UpdateRecord(record);
+        await DocumentService.SaveAsync(_document);
         _isSaved = true;
-        _savedDocSize = GetDocumentSizeInBytes();
-        await Js.InvokeVoidAsync("removeBeforeUnloadHandler"); // Remove o aviso
+        await Js.InvokeVoidAsync("removeBeforeUnloadHandler");
         StateHasChanged();
     }
 
@@ -232,36 +184,28 @@ else
         await Salvar();
     }
 
-    public async ValueTask DisposeAsync()
-    {
-        try
-        {
-            await Js.InvokeVoidAsync("unregisterEditorShortcuts");
-            await Js.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents");
-
-            // if (overlayReady && _spellMod is not null)
-            //     await _spellMod.InvokeVoidAsync("dispose", editorDiv);
-            // if (_spellMod is not null)
-            //     await _spellMod.DisposeAsync();
-        }
-        finally
-        {
-            _dotNetRef?.Dispose();
-        }
-    }
-
-
     [JSInvokable]
-    private void ExportSaveHaiku()
+    private async Task ExportSaveHaiku()
     {
-        Debug.WriteLine("Export called");
-        FileExporter.ExportHaikuDoc(_document!);
+        await DocumentService.ExportAsync(_document!);
     }
 
     private void OnSelectedFont(string font)
     {
         _selectedFont = font; // keeps parent state in sync with toolbar
     }
+
+
+    //TODO implement push pop stack route
+    private async Task BackHome()
+    {
+        await Salvar();
+        Navigation.NavigateTo("/");
+    }
+
+    //Change to textFormatting
+
+    #region text formatting
 
     private async Task OnFontFamilyChanged(string font)
     {
@@ -271,13 +215,6 @@ else
         await Task.Delay(50);
         await UpdateSelectionFormatting();
     }
-
-    private async Task BackHome()
-    {
-        await Salvar();
-        Navigation.NavigateTo("/");
-    }
-
 
     private async Task OnFontColorChanged(string color)
     {
@@ -291,7 +228,7 @@ else
 
     private async Task OnFontSizeChanged(string size)
     {
-        selectedFontSize = size;
+        _docState.FontSize = size;
         await Js.InvokeVoidAsync("applyFontSize", size);
 
         // Aguarda o DOM atualizar e então verifica o estado
@@ -308,16 +245,24 @@ else
         await UpdateSelectionFormatting();
     }
 
+    #endregion
 
-    public sealed class SelectionState
+    public async ValueTask DisposeAsync()
     {
-        public bool Bold { get; set; }
-        public bool Italic { get; set; }
-        public bool Underline { get; set; }
-        public bool Strike { get; set; }
-        public bool IsMixed { get; set; }
-        public string TextAlign { get; set; } = "left";
-        public string FontSize { get; set; } = "16px";
+        try
+        {
+            await Js.InvokeVoidAsync("unregisterEditorShortcuts");
+            await Js.InvokeVoidAsync("selectionStateInterop.unregisterSelectionEvents");
+
+            // if (overlayReady && _spellMod is not null)
+            //     await _spellMod.InvokeVoidAsync("dispose", editorDiv);
+            // if (_spellMod is not null)
+            //     await _spellMod.DisposeAsync();
+        }
+        finally
+        {
+            _dotNetRef?.Dispose();
+        }
     }
 
 }
