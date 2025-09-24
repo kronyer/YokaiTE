@@ -1,0 +1,47 @@
+﻿@using YokaiTE.Utils
+
+@if (Visible)
+{
+    <div class="modal-back" @onclick="OnBackdropClick">
+        <div class="context-menu-modal" style="top:@TopPx; left:@LeftPx; z-index:99999;" @onclick:stopPropagation>
+            @foreach (var btn in Buttons)
+            {
+                <button class="context-btn" @onclick="() => OnButtonClick(btn)">
+                    @if (!string.IsNullOrEmpty(btn.Icon))
+                    {
+                    <img src="@btn.Icon" width="16" height="16" alt="@btn.Text"/>
+                    }
+                    <span>@btn.Text</span>
+                </button>
+            }
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter] public bool Visible { get; set; }
+    [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
+    [Parameter] public List<DropdownButton> Buttons { get; set; }
+    [Parameter] public int Top { get; set; }
+    [Parameter] public int Left { get; set; }
+
+    private string TopPx => $"{Top}px";
+    private string LeftPx => $"{Left}px";
+
+    private async Task OnBackdropClick()
+    {
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task OnButtonClick(DropdownButton btn)
+    {
+        if (btn.OnClick != null)
+            await btn.OnClick.Invoke();
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+
+    
+}
+

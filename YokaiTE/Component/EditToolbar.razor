@@ -3,16 +3,32 @@
 @using YokaiTE.Utils
 @using YokaiTE.Utils.TextHandlers
 @inject ITextFormatter TextFormatter
+@inject IJSRuntime JS
+@inject IDocumentService DocumentService
+@inject NavigationManager NavigationManager
+
+<Dropdown Visible="@showFileMenu"
+          VisibleChanged="@(v => showFileMenu = v)"
+          Buttons="@fileMenuButtons"
+          Top="dropdownTop" Left="dropdownLeft"/>
+
+<Dropdown Visible="@showHelpMenu"
+          VisibleChanged="@(v => showHelpMenu = v)"
+          Buttons="@helpMenuButtons"
+          Top="dropdownTop" Left="dropdownLeft"/>
+
 
 <div class="document-edit-top" @onmousedown:preventDefault="true">
+
     <div class="doc-edit-top-nav">
         <div class="doc-edit-top-left">
             <button @onclick="BackHome">
-                <img src="svg/logo.svg" alt="Home" />
-                </button>
+                <img src="svg/logo.svg" alt="Home"/>
+            </button>
 
             <div style="position: relative" class="file-name-container">
-                <span class="file-name" @onclick="EnableTitleEdit" style="display:@(isEditingTitle ? "none" : "inline")">
+                <span class="file-name" @onclick="EnableTitleEdit"
+                      style="display:@(isEditingTitle ? "none" : "inline")">
                     @Document?.Title
                 </span>
                 <input class="file-name"
@@ -23,15 +39,16 @@
                        @onkeydown="HandleTitleKeyDown"
                        style="display:@(isEditingTitle ? "block" : "none")"/>
                 <div class="options-btn">
-                    <button class="opt-btn">Arquivo</button>
-                    <button class="opt-btn">Ajuda</button>
+                    <button class="opt-btn" @ref="fileBtnRef" @onclick="ShowFileMenu">Arquivo</button>
+                    <button class="opt-btn" @ref="helpBtnRef" @onclick="ShowHelpMenu">Ajuda</button>
+
                 </div>
             </div>
         </div>
         <div class="doc-edit-top-right">
             @if (IsSaved)
             {
-                <img src="svg/saved_check.svg" width="16" height="16" alt="Salvo" />
+                <img src="svg/saved_check.svg" width="16" height="16" alt="Salvo"/>
                 <span class="saved-span">Salvo</span>
             }
             else
@@ -43,46 +60,54 @@
         <div class="font-toolbar w-25">
             @if (!Document.IsSimple)
             {
-            <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="OnFontFamilySelectChanged" Value="SelectedFont"></NormalSelect>
-            <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="OnFontSizeChanged" Value="@SelectionState.FontSize"></NormalSelect>
-                
+                <NormalSelect Label="Fonte" Options="possibleFonts" ValueChanged="OnFontFamilySelectChanged"
+                              Value="SelectedFont"></NormalSelect>
+                <NormalSelect Label="Tamanho" Options="possibleFontSizes" ValueChanged="OnFontSizeChanged"
+                              Value="@SelectionState.FontSize"></NormalSelect>
             }
         </div>
         <div class="style-toolbar w-75">
             <button class="style-btn @(false ? "active" : "")">
-                <img src="svg/font_color.svg" alt="Font Color" />
+                <img src="svg/font_color.svg" alt="Font Color"/>
             </button>
             <button class="style-btn @(false ? "active" : "")">
-                <img src="svg/font_highlight.svg" alt="Font Hightlight" />
+                <img src="svg/font_highlight.svg" alt="Font Hightlight"/>
             </button>
             <div style="width: 1px;
     height: 20px; background: #BABABA;"></div>
             <button @onclick="TextFormatter.ApplyBoldAsync" class="style-btn @(SelectionState.Bold ? "active" : "")">
-                <img src="svg/bold.svg" alt="Font Hightlight" />
+                <img src="svg/bold.svg" alt="Font Hightlight"/>
             </button>
-            <button @onclick="TextFormatter.ApplyItalicAsync" class="style-btn @(SelectionState.Italic ? "active" : "")">
-                <img src="svg/italic.svg" alt="Font Hightlight" />
-                
+            <button @onclick="TextFormatter.ApplyItalicAsync"
+                    class="style-btn @(SelectionState.Italic ? "active" : "")">
+                <img src="svg/italic.svg" alt="Font Hightlight"/>
+
             </button>
-            <button @onclick="TextFormatter.ApplyStrikethrough" class="style-btn @(SelectionState.Strike ? "active" : "")">
-                <img src="svg/strikethrough.svg" alt="Font Hightlight" />
+            <button @onclick="TextFormatter.ApplyStrikethrough"
+                    class="style-btn @(SelectionState.Strike ? "active" : "")">
+                <img src="svg/strikethrough.svg" alt="Font Hightlight"/>
             </button>
-            <button @onclick="TextFormatter.ApplyUnderline" class="style-btn @(SelectionState.Underline ? "active" : "")">
-                <img src="svg/underline.svg" alt="Font Hightlight" />
+            <button @onclick="TextFormatter.ApplyUnderline"
+                    class="style-btn @(SelectionState.Underline ? "active" : "")">
+                <img src="svg/underline.svg" alt="Font Hightlight"/>
             </button>
             <div style="width: 1px;
         height: 20px; background: #BABABA;"></div>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")' class="style-btn @(SelectionState.TextAlign == "center" ? "active" : "")">
-                <img src="svg/center.svg" alt="Centralizar" />
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("center")'
+                    class="style-btn @(SelectionState.TextAlign == "center" ? "active" : "")">
+                <img src="svg/center.svg" alt="Centralizar"/>
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")' class="style-btn @(SelectionState.TextAlign == "full" ? "active" : "")">
-                <img src="svg/justify.svg" alt="Justificar" />
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("full")'
+                    class="style-btn @(SelectionState.TextAlign == "full" ? "active" : "")">
+                <img src="svg/justify.svg" alt="Justificar"/>
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")' class="style-btn @(SelectionState.TextAlign == "left" ? "active" : "")">
-                <img src="svg/left.svg" alt="Esquerda" />
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("left")'
+                    class="style-btn @(SelectionState.TextAlign == "left" ? "active" : "")">
+                <img src="svg/left.svg" alt="Esquerda"/>
             </button>
-            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")' class="style-btn @(SelectionState.TextAlign == "right" ? "active" : "")">
-                <img src="svg/right.svg" alt="Direita" />
+            <button @onclick='() => OnTextAlignChanged.InvokeAsync("right")'
+                    class="style-btn @(SelectionState.TextAlign == "right" ? "active" : "")">
+                <img src="svg/right.svg" alt="Direita"/>
             </button>
         </div>
     </div>
@@ -97,20 +122,20 @@
     [Parameter] public EventCallback<string> SelectedFontChanged { get; set; }
     [Parameter] public EventCallback<string> SelectedFontSizeChanged { get; set; }
     private bool isEditingTitle = false;
-    
-    
+    private ElementReference fileBtnRef;
+private ElementReference helpBtnRef;
+
     private ElementReference titleInput;
 
-    [Parameter]
-    public required SelectionState SelectionState { get; set; }
-    
+    [Parameter] public required SelectionState SelectionState { get; set; }
+
     private string EditTitle = "";
 
     private List<YokaiTE.Component.NormalSelect.SelectOption> possibleFonts = new()
-{
-    new("Arial", "Arial"),
-    new("Times New Roman", "Times New Roman")
-};
+    {
+        new("Arial", "Arial"),
+        new("Times New Roman", "Times New Roman")
+    };
 
     [Parameter] public EventCallback<string> OnFontColorChanged { get; set; }
     [Parameter] public EventCallback<string> OnHighlightColorChanged { get; set; }
@@ -123,15 +148,15 @@
     private string selectedFont = "Arial";
 
     private List<NormalSelect.SelectOption> possibleFontSizes = new()
-{
-    new("10px", "10px"),
-    new("12px", "12px"),
-    new("14px", "14px"),
-    new("16px", "16px"),
-    new("18px", "18px"),
-    new("24px", "24px"),
-    new("32px", "32px")
-};
+    {
+        new("10px", "10px"),
+        new("12px", "12px"),
+        new("14px", "14px"),
+        new("16px", "16px"),
+        new("18px", "18px"),
+        new("24px", "24px"),
+        new("32px", "32px")
+    };
 
     private List<NormalSelect.SelectOption> fontColors = new()
     {
@@ -174,11 +199,107 @@
         else if (e.Key == "Escape")
             isEditingTitle = false;
     }
-    
+
     private async Task OnFontFamilySelectChanged(string font)
     {
-        SelectedFont = font;                              // update toolbar UI
-        await SelectedFontChanged.InvokeAsync(font);      // notify parent to update its state
-        await OnFontFamilyChanged.InvokeAsync(font);      // apply to editor (JS)
+        SelectedFont = font; // update toolbar UI
+        await SelectedFontChanged.InvokeAsync(font); // notify parent to update its state
+        await OnFontFamilyChanged.InvokeAsync(font); // apply to editor (JS)
     }
+
+    private bool showFileMenu = false;
+private bool showHelpMenu = false;
+    private int dropdownTop = 40;
+    private int dropdownLeft = 0;
+
+    private async Task ShowFileMenu(MouseEventArgs e)
+    {
+        var rect = await JS.InvokeAsync<DomRect>("getBoundingClientRect", fileBtnRef);
+        dropdownTop = (int)rect.Bottom; // ou rect.Top + altura do botão
+        dropdownLeft = (int)rect.Left;
+        showFileMenu = !showFileMenu;
+        StateHasChanged();
+    }
+    
+    private async Task ShowHelpMenu(MouseEventArgs e)
+    {
+        var rect = await JS.InvokeAsync<DomRect>("getBoundingClientRect", helpBtnRef);
+        dropdownTop = (int)rect.Bottom; // ou rect.Top + altura do botão
+        dropdownLeft = (int)rect.Left;
+        showHelpMenu = !showHelpMenu;
+        StateHasChanged();
+    }
+    
+    
+
+    private List<DropdownButton> fileMenuButtons;
+    private List<DropdownButton> helpMenuButtons;
+
+    protected override void OnInitialized()
+    {
+        fileMenuButtons = new List<DropdownButton>
+        {
+            new() { Text = "Novo", OnClick = OnNewFile },
+            new() { Text = "Salvar", OnClick = OnSaveFile },
+            new() { Text = "Exportar", OnClick = OnExportFile },
+            new() { Text = "Configurações", OnClick = OnExportFile },
+            new() { Text = "Fechar", OnClick = OnCloseFile }
+        };
+
+        helpMenuButtons = new List<DropdownButton>
+        {
+            new() { Text = "Atalhos", OnClick = OnOpenFile },
+            new() { Text = "Reportar bug", OnClick = OnOpenFile },
+            new() { Text = "Sobre", OnClick = OnOpenFile },
+        };
+    }
+
+    private Task OnNewFile()
+    {
+        showFileMenu = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnOpenFile()
+    {
+        showFileMenu = false; /* lógica */
+        return Task.CompletedTask;
+    }
+
+    private async Task SaveIfNotSaved()
+    {
+        if (!IsSaved)
+            await DocumentService.SaveAsync(Document);
+    }
+
+    private async Task OnSaveFile()
+    {
+        showFileMenu = false;
+        await SaveIfNotSaved();
+    }
+
+    private async Task OnCloseFile()
+    {
+        showFileMenu = false;
+        await SaveIfNotSaved();
+        NavigationManager.NavigateTo("/");
+    }
+
+    private async Task OnExportFile()
+    {
+        showFileMenu = false;
+        await DocumentService.ExportAsync(Document);
+    }
+
+    public class DomRect
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Bottom { get; set; }
+        public double Right { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
+
 }

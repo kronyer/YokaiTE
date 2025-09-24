@@ -491,7 +491,13 @@
             });
         }
     </script>
-    
+    <script>
+        window.getBoundingClientRect = (element) => {
+            if (!element) return null;
+            return element.getBoundingClientRect();
+        };
+        
+    </script>
     <script src="js/spellOverlay.js"></script>
     <script src="js/selectionState.js"></script>
     <script src="js/preview.js"></script>
