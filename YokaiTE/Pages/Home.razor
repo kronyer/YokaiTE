@@ -17,6 +17,7 @@
 @inject IFileImporter FileImporter
 @inject IJSRuntime JsRuntime
 @inject IFileInfoProvider FileInfoProvider
+@inject IDocumentService DocumentService
 
 <PageTitle>Home</PageTitle>
 
@@ -132,8 +133,8 @@
     private bool showContextMenu = false;
     private int contextMenuTop;
     private int contextMenuLeft;
-    private Document? selectedDocument;
-
+    private DocumentMetadata? selectedDocument;
+    
     private string SelectedField { get; set; } = "Data de abertura";
     private SortOrder SelectedOrder { get; set; } = SortOrder.Desc;
 
@@ -222,7 +223,7 @@
         await JsRuntime.InvokeVoidAsync("ShowOptionsDocument", e, documentId);
     }
 
-    private void ShowContextMenu(MouseEventArgs e, Document doc)
+    private void ShowContextMenu(MouseEventArgs e, DocumentMetadata doc)
     {
         selectedDocument = doc;
         contextMenuTop = (int)e.ClientY;
@@ -238,13 +239,9 @@
 
     private async Task SaveDocument(Document doc)
     {
-        doc.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(doc);
+        await DocumentService.SaveAsync(doc);
 
-
-        var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
-        await DbManager.AddRecord(record);
-
-        documents = await DbManager.GetRecords<Document>("documents");
+        await LoadDocuments(); // Recarrega a lista de metadados
 
         var novoDoc = documents
             .OrderByDescending(d => d.LastModified)
@@ -259,13 +256,11 @@
         Navigation.NavigateTo($"/edit/{id}");
     }
 
-    List<Document> documents = new()
-    {
-    };
+    List<DocumentMetadata> documents = new List<DocumentMetadata>();
 
     private void SortDocuments()
     {
-        Func<Document, object>? keySelector = SelectedField switch
+        Func<DocumentMetadata, object>? keySelector = SelectedField switch
         {
             "Data de abertura" => d => d.LastOpened,
             "Data de edição" => d => d.LastModified,
@@ -298,20 +293,23 @@
 
     private async Task LoadDocuments()
     {
-        var loadedDoc = await DbManager.GetRecords<Document>("documents");
+        var loadedMetadata = await DocumentService.GetAllMetadataAsync();
 
         if (!string.IsNullOrWhiteSpace(SearchValue))
         {
-            documents = loadedDoc
+            documents = loadedMetadata
                 .Where(d => d.Title.Contains(SearchValue, StringComparison.OrdinalIgnoreCase))
                 .ToList();
         }
         else
         {
-            documents = loadedDoc.ToList();
+            documents = loadedMetadata;
         }
 
-        SortDocuments();
+        if (documents != null)
+        {
+            SortDocuments();
+        }
         StateHasChanged();
     }
 
@@ -330,7 +328,7 @@
             return;
         }
 
-        await DbManager.DeleteRecord<long>("documents", selectedDocument.Id);
+        await DocumentService.DeleteAsync(selectedDocument.Id);
         await LoadDocuments();
     }
 

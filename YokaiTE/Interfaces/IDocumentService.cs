@@ -6,4 +6,6 @@ public interface IDocumentService
     Task SaveAsync(YokaiTE.Document doc);
     Task UpdateLastOpenedAsync(YokaiTE.Document doc);
     Task ExportAsync(YokaiTE.Document doc);
+    Task<List<DocumentMetadata>> GetAllMetadataAsync();
+    Task DeleteAsync(long id);
 }

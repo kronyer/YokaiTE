@@ -37,6 +37,18 @@ builder.Services.AddIndexedDB(dbStore =>
             new IndexSpec { Name = "title", KeyPath = "title", Auto = false }
         }
     });
+    
+    dbStore.Stores.Add(new StoreSchema
+    {
+        Name = "documentMetadata",
+        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+        Indexes = new List<IndexSpec>
+        {
+            new IndexSpec { Name = "title", KeyPath = "title", Auto = false }
+        }
+    });
 });
+
+
 
 await builder.Build().RunAsync();

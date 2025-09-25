@@ -1,6 +1,8 @@
 ﻿@using TG.Blazor.IndexedDB
 @using YokaiTE.Component
+@using YokaiTE.Interfaces
 @inject IndexedDBManager DbManager
+@inject IDocumentService DocumentService
 
 <div class="modal-back">
     <div class="modal">
@@ -21,12 +23,21 @@
 </div>
 
 @code {
-    [Parameter] public Document Document { get; set; }
+    [Parameter] public DocumentMetadata Document { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
 
     private async Task Rename()
     {
-        await DbManager.UpdateRecord(new StoreRecord<Document> { Storename = "documents", Data = Document });
+        // Carrega o documento completo
+        var fullDocument = await DocumentService.LoadAsync(Document.Id);
+        if (fullDocument != null)
+        {
+            // Atualiza o título
+            fullDocument.Title = Document.Title;
+            // Salva usando o DocumentService que atualiza tanto o documento quanto os metadados
+            await DocumentService.SaveAsync(fullDocument);
+        }
+        
         await OnClose.InvokeAsync();
     }
 

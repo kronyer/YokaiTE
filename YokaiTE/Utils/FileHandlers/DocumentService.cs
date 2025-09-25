@@ -22,6 +22,8 @@ namespace YokaiTE.Utils.FileHandlers
                 doc.LastOpened = DateTime.Now;
                 var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
                 await _db.UpdateRecord(record);
+                await UpdateMetadata(doc);
+
             }
             return doc;
         }
@@ -32,6 +34,39 @@ namespace YokaiTE.Utils.FileHandlers
             doc.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(doc);
             var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
             await _db.UpdateRecord(record);
+            await UpdateMetadata(doc);
+        }
+        
+        public async Task<List<DocumentMetadata>> GetAllMetadataAsync()
+        {
+            return await _db.GetRecords<DocumentMetadata>("documentMetadata");
+        }
+        
+public async Task DeleteAsync(long id)
+        {
+            // Deleta o documento principal
+            await _db.DeleteRecord<long>("documents", id);
+            
+            // Deleta os metadados correspondentes
+            await _db.DeleteRecord<long>("documentMetadata", id);
+        }
+        
+        
+        private async Task UpdateMetadata(YokaiTE.Document doc)
+        {
+            var metadata = new DocumentMetadata
+            {
+                Id = doc.Id,
+                Title = doc.Title,
+                CreatedAt = doc.CreatedAt,
+                LastModified = doc.LastModified,
+                LastOpened = doc.LastOpened,
+                BackgroundColor = doc.BackgroundColor,
+                PreviewPngBase64 = doc.PreviewPngBase64
+            };
+
+            var metadataRecord = new StoreRecord<DocumentMetadata> { Storename = "documentMetadata", Data = metadata };
+            await _db.UpdateRecord(metadataRecord);
         }
 
         public async Task UpdateLastOpenedAsync(YokaiTE.Document doc)
@@ -39,6 +74,7 @@ namespace YokaiTE.Utils.FileHandlers
             doc.LastOpened = DateTime.Now;
             var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
             await _db.UpdateRecord(record);
+            await UpdateMetadata(doc);
         }
 
         public Task ExportAsync(YokaiTE.Document doc)

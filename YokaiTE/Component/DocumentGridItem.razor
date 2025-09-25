@@ -24,7 +24,7 @@
 </div>
 
 @code {
-    [Parameter] public Document Document { get; set; }
+    [Parameter] public DocumentMetadata Document { get; set; }
     [Parameter] public IFileInfoProvider FileInfoProvider { get; set; }
     [Parameter] public EventCallback OnClick { get; set; }
     [Parameter] public EventCallback<MouseEventArgs> OnContextMenu { get; set; }

@@ -4,7 +4,7 @@ namespace YokaiTE.Utils.FileHandlers;
 
 public class FileInfoProvider : IFileInfoProvider
 {
-    public string GetSubtitle(Document doc, string SelectedField)
+    public string GetSubtitle(DocumentMetadata doc, string SelectedField)
     {
         return SelectedField switch
         {
