@@ -115,3 +115,42 @@
 .edit-page {
     height: calc(100vh - 115px);
 }
+
+.zen-editor.skeleton {
+    position: relative;
+    pointer-events: none;
+    user-select: none;
+    background: #F2F2F2; /* garante o fundo mesmo se inline faltar */
+}
+
+.skeleton-paragraph {
+    margin-bottom: 18px;
+    flex-direction: column;
+    display: flex;
+    gap: 1rem;
+}
+
+.skeleton-line {
+    height: 18px; /* acompanha .zen-editor * { font-size: 18px } */
+    border-radius: 6px;
+    margin: 0;
+    background: linear-gradient( 90deg, #E6E6E6 0%, #F4F4F4 50%, #E6E6E6 100% );
+    background-size: 1000px 100%;
+    animation: zen-skeleton-shimmer 4.2s linear infinite;
+}
+
+    /* larguras variadas para simular linhas reais */
+    .skeleton-line.w-100 {
+        width: 100%;
+    }
+
+
+@keyframes zen-skeleton-shimmer {
+    0% {
+        background-position: -1000px 0;
+    }
+
+    100% {
+        background-position: 1000px 0;
+    }
+}

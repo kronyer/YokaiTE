@@ -3,10 +3,10 @@
 @using YokaiTE.Interfaces
 
 <div @oncontextmenu:preventDefault="true"
-     @onclick="OnClickHandler"
      @oncontextmenu="OnContextMenuHandler"
      class="document-grid-item">
-    <div class="grid-item-name">
+    <div @onclick="OnClickHandler"
+         class="grid-item-name">
         <img src="svg/doc-icon.svg" alt="Icon"/>
         <span class="doc-title-grid">@Document.Title</span>
     </div>
@@ -17,7 +17,7 @@
         <span>
             @FileInfoProvider.GetTimeAgo(Document.CreatedAt)
         </span>
-        <button @onclick="() => OnContextMenuHandler(null)">
+        <button >
             <img src="svg/verticalDots.svg" alt="Icon"/>
         </button>
     </div>

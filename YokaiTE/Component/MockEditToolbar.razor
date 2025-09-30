@@ -1,0 +1,179 @@
+@using System.ComponentModel.DataAnnotations
+@using YokaiTE.Interfaces
+@using YokaiTE.Utils
+@using YokaiTE.Utils.TextHandlers
+@inject IJSRuntime JS
+@inject NavigationManager NavigationManager
+
+<Dropdown Visible="@showFileMenu"
+          VisibleChanged="@(v => showFileMenu = v)"
+          Buttons="@fileMenuButtons"
+          Top="dropdownTop" Left="dropdownLeft" />
+
+<Dropdown Visible="@showHelpMenu"
+          VisibleChanged="@(v => showHelpMenu = v)"
+          Buttons="@helpMenuButtons"
+          Top="dropdownTop" Left="dropdownLeft" />
+
+
+<div class="document-edit-top" @onmousedown:preventDefault="true">
+
+    <div class="doc-edit-top-nav">
+        <div class="doc-edit-top-left">
+            <button @onclick="BackHome">
+                <img src="svg/logo.svg" alt="Home" />
+            </button>
+
+            <div style="position: relative" class="file-name-container">
+                <span class="file-name"
+                      style="display: inline)">
+                    Carregando...
+                </span>
+                <div class="options-btn">
+                    <button class="opt-btn" @ref="fileBtnRef" @onclick="ShowFileMenu">Arquivo</button>
+                    <button class="opt-btn" @ref="helpBtnRef" @onclick="ShowHelpMenu">Ajuda</button>
+
+                </div>
+            </div>
+        </div>
+        <div class="doc-edit-top-right">
+        </div>
+    </div>
+    <div class="toolbar-top-container">
+        <div class="font-toolbar w-25">
+        </div>
+        <div class="style-toolbar w-75">
+            <button class="style-btn @(false ? "active" : "")">
+                <img src="svg/font_color.svg" alt="Font Color" />
+            </button>
+            <button class="style-btn @(false ? "active" : "")">
+                <img src="svg/font_highlight.svg" alt="Font Hightlight" />
+            </button>
+            <div style="width: 1px;
+    height: 20px; background: #BABABA;"></div>
+            <button >
+                <img src="svg/bold.svg" alt="Font Hightlight" />
+            </button>
+            <button 
+                    class="style-btn ">
+                <img src="svg/italic.svg" alt="Font Hightlight" />
+
+            </button>
+            <button 
+                    class="style-btn ">
+                <img src="svg/strikethrough.svg" alt="Font Hightlight" />
+            </button>
+            <button 
+                    class="style-btn ">
+                <img src="svg/underline.svg" alt="Font Hightlight" />
+            </button>
+            <div style="width: 1px;
+        height: 20px; background: #BABABA;"></div>
+            <button class="style-btn">
+                <img src="svg/center.svg" alt="Centralizar" />
+            </button>
+            <button class="style-btn">
+                <img src="svg/justify.svg" alt="Justificar" />
+            </button>
+            <button class="style-btn active">
+                <img src="svg/left.svg" alt="Esquerda" />
+            </button>
+            <button class="style-btn">
+                <img src="svg/right.svg" alt="Direita" />
+            </button>
+        </div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public EventCallback BackHome { get; set; }
+    private ElementReference fileBtnRef;
+    private ElementReference helpBtnRef;
+
+    private ElementReference titleInput;
+
+
+    private string EditTitle = "";
+
+
+    private bool showFileMenu = false;
+    private bool showHelpMenu = false;
+    private int dropdownTop = 40;
+    private int dropdownLeft = 0;
+
+    private async Task ShowFileMenu(MouseEventArgs e)
+    {
+        return;
+
+        var rect = await JS.InvokeAsync<DomRect>("getBoundingClientRect", fileBtnRef);
+        dropdownTop = (int)rect.Bottom; // ou rect.Top + altura do botão
+        dropdownLeft = (int)rect.Left;
+        showFileMenu = !showFileMenu;
+        StateHasChanged();
+    }
+
+    private async Task ShowHelpMenu(MouseEventArgs e)
+    {
+        return;
+
+        var rect = await JS.InvokeAsync<DomRect>("getBoundingClientRect", helpBtnRef);
+        dropdownTop = (int)rect.Bottom; // ou rect.Top + altura do botão
+        dropdownLeft = (int)rect.Left;
+        showHelpMenu = !showHelpMenu;
+        StateHasChanged();
+    }
+
+
+
+    private List<DropdownButton> fileMenuButtons;
+    private List<DropdownButton> helpMenuButtons;
+
+    protected override void OnInitialized()
+    {
+        fileMenuButtons = new List<DropdownButton>
+        {
+            new() { Text = "Novo", OnClick = OnNewFile },
+            new() { Text = "Fechar", OnClick = OnCloseFile }
+        };
+
+        helpMenuButtons = new List<DropdownButton>
+        {
+            new() { Text = "Atalhos", OnClick = OnOpenFile },
+            new() { Text = "Reportar bug", OnClick = OnOpenFile },
+            new() { Text = "Sobre", OnClick = OnOpenFile },
+        };
+    }
+
+    private Task OnNewFile()
+    {
+        showFileMenu = false;
+        return Task.CompletedTask;
+    }
+
+    private Task OnOpenFile()
+    {
+        showFileMenu = false; /* lógica */
+        return Task.CompletedTask;
+    }
+
+
+
+    private async Task OnCloseFile()
+    {
+        showFileMenu = false;
+        NavigationManager.NavigateTo("/");
+    }
+
+
+    public class DomRect
+    {
+        public double Left { get; set; }
+        public double Top { get; set; }
+        public double Bottom { get; set; }
+        public double Right { get; set; }
+        public double Width { get; set; }
+        public double Height { get; set; }
+    }
+
+
+}

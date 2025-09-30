@@ -75,19 +75,19 @@
             </button>
             <div style="width: 1px;
     height: 20px; background: #BABABA;"></div>
-            <button @onclick="TextFormatter.ApplyBoldAsync" class="style-btn @(SelectionState.Bold ? "active" : "")">
+            <button @onclick="OnBoldClicked" class="style-btn @(SelectionState.Bold ? "active" : "")">
                 <img src="svg/bold.svg" alt="Font Hightlight"/>
             </button>
-            <button @onclick="TextFormatter.ApplyItalicAsync"
+            <button @onclick="OnItalicClicked"
                     class="style-btn @(SelectionState.Italic ? "active" : "")">
                 <img src="svg/italic.svg" alt="Font Hightlight"/>
 
             </button>
-            <button @onclick="TextFormatter.ApplyStrikethrough"
+            <button @onclick="OnStrikethroughClicked"
                     class="style-btn @(SelectionState.Strike ? "active" : "")">
                 <img src="svg/strikethrough.svg" alt="Font Hightlight"/>
             </button>
-            <button @onclick="TextFormatter.ApplyUnderline"
+            <button @onclick="OnUnderlineClicked"
                     class="style-btn @(SelectionState.Underline ? "active" : "")">
                 <img src="svg/underline.svg" alt="Font Hightlight"/>
             </button>
@@ -142,6 +142,7 @@ private ElementReference helpBtnRef;
     [Parameter] public EventCallback<string> OnFontSizeChanged { get; set; }
     [Parameter] public EventCallback<string> OnFontFamilyChanged { get; set; }
     [Parameter] public EventCallback<string> OnTextAlignChanged { get; set; }
+    [Parameter] public EventCallback OnFormattingChanged { get; set; }
 
     private string selectedFontColor = "#000000";
     private string selectedHighlightColor = "#FFFF00";
@@ -289,6 +290,40 @@ private bool showHelpMenu = false;
     {
         showFileMenu = false;
         await DocumentService.ExportAsync(Document);
+    }
+
+    private async Task OnBoldClicked()
+    {
+        await TextFormatter.ApplyBoldAsync();
+        await NotifyFormattingChangedAsync();
+    }
+
+    private async Task OnItalicClicked()
+    {
+        await TextFormatter.ApplyItalicAsync();
+        await NotifyFormattingChangedAsync();
+    }
+
+    private async Task OnUnderlineClicked()
+    {
+        await TextFormatter.ApplyUnderline();
+        await NotifyFormattingChangedAsync();
+    }
+
+    private async Task OnStrikethroughClicked()
+    {
+        await TextFormatter.ApplyStrikethrough();
+        await NotifyFormattingChangedAsync();
+    }
+
+    private async Task NotifyFormattingChangedAsync()
+    {
+        if (OnFormattingChanged.HasDelegate)
+        {
+            // pequeno atraso para o DOM aplicar o execCommand
+            await Task.Delay(50);
+            await OnFormattingChanged.InvokeAsync();
+        }
     }
 
     public class DomRect

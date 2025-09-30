@@ -21,18 +21,38 @@
 {
     // TODO loader aqui
     //pm um loading aqui
-    <p>Carregando...</p>
+    <MockEditToolbar BackHome="BackHome"/>
+    <div class="edit-page">
+
+        <div class="editor-wrap">
+            <div class="zen-editor skeleton" style="background:#F2F2F2">
+                <div class="skeleton-paragraph">
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                    <div class="skeleton-line w-100"></div>
+                </div>
+                
+            </div>
+            <canvas class="overlay" @ref="_overlayRef"></canvas>
+        </div>
+    </div>
 }
 else
 {
     <EditToolbar SelectionState="@_docState"
-
                  OnFontColorChanged="OnFontColorChanged"
                  OnHighlightColorChanged="OnHighlightColorChanged"
                  OnFontSizeChanged="OnFontSizeChanged"
                  OnFontFamilyChanged="OnFontFamilyChanged"
                  OnTextAlignChanged="OnTextAlignChanged"
-
+                 OnFormattingChanged="OnFormattingChanged"
                  Document="_document"
                  IsSaved="_isSaved"
                  BackHome="BackHome"
@@ -98,22 +118,25 @@ else
 
         StateHasChanged();
     }
+    private bool _eventsRegistered;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender)
+        if (_document == null)
         {
-            _dotNetRef = DotNetObjectReference.Create(this);
-            await Js.InvokeVoidAsync("registerEditorShortcuts", _dotNetRef);
-
-            //pm check bold etc
-            await Js.InvokeVoidAsync("selectionStateInterop.registerSelectionEvents", _dotNetRef);
-
-            //TODO this is important, but not now
-            // _spellMod = await JS.InvokeAsync<IJSObjectReference>("import", "/js/spellOverlay.js");
+            return;
         }
 
-        if (_document != null && !_conteudoSetado)
+        // registre os eventos assim que houver documento (uma única vez)
+        if (!_eventsRegistered)
+        {
+            _dotNetRef ??= DotNetObjectReference.Create(this);
+            await Js.InvokeVoidAsync("registerEditorShortcuts", _dotNetRef);
+            await Js.InvokeVoidAsync("selectionStateInterop.registerSelectionEvents", _dotNetRef);
+            _eventsRegistered = true;
+        }
+
+        if (!_conteudoSetado)
         {
             await Js.InvokeVoidAsync("setZenContent", _editorDiv, _document.Content ?? "");
             await Js.InvokeVoidAsync("setupZenEditorSpanWrapper", _editorDiv);
@@ -124,10 +147,12 @@ else
             {
                 await _spellMod.InvokeVoidAsync("init", _editorDiv, _overlayRef);
                 _overlayReady = true;
-
-                // primeira pintura (opcional)
                 await _spellMod.InvokeVoidAsync("check", _editorDiv, _overlayRef);
             }
+
+            // opcional: sincroniza estado inicial da toolbar após montar o conteúdo
+            await Task.Delay(50);
+            await UpdateSelectionFormatting();
         }
     }
 
@@ -242,6 +267,11 @@ else
 
         // Aguarda o DOM atualizar e então verifica o estado
         await Task.Delay(50);
+        await UpdateSelectionFormatting();
+    }
+
+    private async Task OnFormattingChanged()
+    {
         await UpdateSelectionFormatting();
     }
 
