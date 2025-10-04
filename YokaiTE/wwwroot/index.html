@@ -86,31 +86,31 @@
                 function ensurePrintStyle() {
                     if (document.getElementById('zen-print-style')) return;
                     const css = `
-    @page { margin: 0; size: auto; }
-    html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
-    .print-only { display: none; }
-    @media print {
-      /* Esconde todo o resto e mostra apenas o container de impressão */
-      body > :not(.print-only) { display: none !important; }
-      .print-only {
-        display: block !important;
-        padding: 24px !important;
-        box-sizing: border-box !important;
-        width: calc(100% - 48px) !important; /* 100% menos padding lateral */
-        max-width: 100% !important;
-        height: auto !important;
-        margin: 0 !important;
-        overflow: visible !important;
-      }
-      /* Evita que elementos internos excedam a largura e gerem scroll lateral */
-      .print-only * {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
-        overflow-wrap: break-word !important;
-        word-break: break-word !important;
-      }
-    }
-  `;
+        @page { margin: 0; size: auto; }
+        html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+        .print-only { display: none; }
+        @media print {
+          /* Esconde todo o resto e mostra apenas o container de impressão */
+          body > :not(.print-only) { display: none !important; }
+          .print-only {
+            display: block !important;
+            padding: 24px !important;
+            box-sizing: border-box !important;
+            width: calc(100% - 48px) !important; /* 100% menos padding lateral */
+            max-width: 100% !important;
+            height: auto !important;
+            margin: 0 !important;
+            overflow: visible !important;
+          }
+          /* Evita que elementos internos excedam a largura e gerem scroll lateral */
+          .print-only * {
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-wrap: break-word !important;
+            word-break: break-word !important;
+          }
+        }
+      `;
                     const style = document.createElement('style');
                     style.id = 'zen-print-style';
                     style.appendChild(document.createTextNode(css));
@@ -167,8 +167,8 @@
 
                 // Exporta função global para uso no registerEditorShortcuts existente
                 window.printZenEditor = printZenEditor;
-                
-                
+
+
             };
             window.addEventListener('keydown', window.editorShortcutsHandler);
         };
@@ -247,7 +247,7 @@
                 var walker = document.createTreeWalker(
                     container,
                     NodeFilter.SHOW_ELEMENT,
-                    function(node) {
+                    function (node) {
                         return range.intersectsNode && range.intersectsNode(node) ?
                             NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT;
                     }
@@ -261,7 +261,7 @@
                     }
                 }
 
-                elementsToUpdate.forEach(function(element) {
+                elementsToUpdate.forEach(function (element) {
                     element.style.fontSize = '';
                     if (!element.style.cssText) {
                         element.removeAttribute('style');
@@ -301,7 +301,7 @@
         };
     </script>
     <script>
-        document.addEventListener('mousedown', function(e) {
+        document.addEventListener('mousedown', function (e) {
             // Verifica se o clique está dentro da toolbar
             const toolbar = e.target.closest('.document-edit-top');
             if (toolbar) {
@@ -318,7 +318,7 @@
         });
     </script>
     <script>
-        window.setupZenEditorSpanWrapper = function(editorElement) {
+        window.setupZenEditorSpanWrapper = function (editorElement) {
             function createInitialSpan() {
                 if (editorElement.innerHTML.trim() === '' ||
                     editorElement.innerHTML === '<br>' ||
@@ -346,7 +346,7 @@
         };
     </script>
     <script>
-        window.saveFileFromBase64 = function(filename, base64, mimeType) {
+        window.saveFileFromBase64 = function (filename, base64, mimeType) {
             try {
                 const byteChars = atob(base64);
                 const byteNumbers = new Array(byteChars.length);
@@ -373,26 +373,26 @@
         // javascript
         window.haikuDrop = {
             _handlers: {},
-            register: function(dotNetHelper, elementId) {
+            register: function (dotNetHelper, elementId) {
                 const el = document.getElementById(elementId);
                 const shadow = document.getElementById('shadow');
                 if (!el || !shadow) return;
 
                 let dragCounter = 0;
 
-                const onDragEnter = function(e) {
+                const onDragEnter = function (e) {
                     e.preventDefault();
                     dragCounter++;
                     shadow.classList.add('active');
-                    try { if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; } catch {}
+                    try { if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; } catch { }
                 };
 
-                const onDragOver = function(e) {
+                const onDragOver = function (e) {
                     e.preventDefault();
-                    try { if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; } catch {}
+                    try { if (e.dataTransfer) e.dataTransfer.dropEffect = 'copy'; } catch { }
                 };
 
-                const onDragLeave = function(e) {
+                const onDragLeave = function (e) {
                     e.preventDefault();
                     dragCounter = Math.max(0, dragCounter - 1);
                     if (dragCounter === 0) {
@@ -400,7 +400,7 @@
                     }
                 };
 
-                const onDrop = function(e) {
+                const onDrop = function (e) {
                     e.preventDefault();
                     dragCounter = 0;
                     shadow.classList.remove('active');
@@ -409,7 +409,7 @@
                     if (!files || files.length === 0) return;
                     const file = files[0];
                     const reader = new FileReader();
-                    reader.onload = function(evt) {
+                    reader.onload = function (evt) {
                         const ab = evt.target.result;
                         const bytes = new Uint8Array(ab);
                         let binary = '';
@@ -423,7 +423,7 @@
                     reader.readAsArrayBuffer(file);
                 };
 
-                const onDragEnd = function() {
+                const onDragEnd = function () {
                     dragCounter = 0;
                     shadow.classList.remove('active');
                 };
@@ -441,7 +441,7 @@
                 };
             },
 
-            unregister: function(elementId) {
+            unregister: function (elementId) {
                 const h = this._handlers[elementId];
                 if (!h) return;
                 h.el.removeEventListener('dragenter', h.onDragEnter);
@@ -449,7 +449,7 @@
                 h.el.removeEventListener('dragleave', h.onDragLeave);
                 h.el.removeEventListener('drop', h.onDrop);
                 window.removeEventListener('dragend', h.onDragEnd);
-                try { h.dotNetHelper.dispose(); } catch {}
+                try { h.dotNetHelper.dispose(); } catch { }
                 delete this._handlers[elementId];
             }
         };
@@ -496,11 +496,12 @@
             if (!element) return null;
             return element.getBoundingClientRect();
         };
-        
+
     </script>
     <script src="js/spellOverlay.js"></script>
     <script src="js/selectionState.js"></script>
     <script src="js/preview.js"></script>
+    <script src="js/breakpoint.js"></script>
 </body>
 
 </html>

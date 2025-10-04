@@ -1,4 +1,4 @@
-﻿<div class="search-input">
+﻿<div class="search-input @(Mobile ? "mbl" : "")">
     <!-- ícone lupa -->
     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 16 16" fill="none">
         <g clip-path="url(#clip0_2_80)">
@@ -23,6 +23,7 @@
     [Parameter] public string? Value { get; set; }
     [Parameter] public EventCallback<string?> ValueChanged { get; set; }
     [Parameter] public string Placeholder { get; set; } = "Pesquisar";
+    [Parameter] public bool Mobile { get; set; } = false;
 
     private async Task OnInput(ChangeEventArgs e)
     {

@@ -8,6 +8,7 @@
     z-index:9999;
 }
 
+
 .doc-edit-top-nav {
     display: flex;
     padding: 20px 32px;
@@ -16,6 +17,10 @@
     align-self: stretch;
     border-bottom: 1px solid #D2D2D2;
 }
+
+    .doc-edit-top-nav.mbl {
+        padding: 16px 16px;
+    }
 
 .doc-edit-top-left {
     display: flex;
@@ -114,4 +119,13 @@
 .opt-btn:hover{
     background: #bbb;
     border-radius: 4px;
+}
+
+.file-name-container.mbl{
+    width:100px;
+}
+
+.toolbar-top-container.mbl{
+    flex-direction:column;
+    gap:8px;
 }

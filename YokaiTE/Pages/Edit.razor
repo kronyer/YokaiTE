@@ -12,6 +12,7 @@
 @inject IJSRuntime Js
 @inject IDocumentMetrics DocumentMetrics
 @inject IDocumentService DocumentService
+@inject BreakpointService BreakpointService
 
 @implements IAsyncDisposable
 
@@ -59,6 +60,7 @@ else
                  TitleChanged="SaveTitleEdit"
                  SelectedFont="@_selectedFont"
                  SelectedFontChanged="OnSelectedFont"
+                 Mobile="_isMobile"
     />
     <div class="edit-page">
 
@@ -93,6 +95,9 @@ else
 
     //TODO pass the selected font to another area
     private string _selectedFont = string.Empty;
+
+    private bool _isMobile;
+
 
     [JSInvokable]
     public async Task UpdateSelectionFormatting()
@@ -158,8 +163,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        await BreakpointService.InitializeAsync();
+        BreakpointService.OnChange += HandleBreakpointChange;
+        _isMobile = BreakpointService.CurrentBreakpoint == "mobile";
+
         _document = await DocumentService.LoadAsync(Id);
         _conteudoSetado = false;
+    }
+
+    private void HandleBreakpointChange(string bp)
+    {
+        _isMobile = bp == "mobile";
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task Salvar()
@@ -292,6 +307,7 @@ else
         finally
         {
             _dotNetRef?.Dispose();
+            BreakpointService.OnChange -= HandleBreakpointChange;
         }
     }
 

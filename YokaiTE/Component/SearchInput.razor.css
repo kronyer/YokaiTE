@@ -6,7 +6,11 @@
     border-bottom: 1px solid #D7D7D7;
     width: 60%;
     transition: border-bottom-color 0.3s, border-bottom-width 0.3s ease-in-out;
+}
 
+.search-input.mbl {
+    width:90%;
+    margin:auto;
 }
 
 .search-input:focus-within {
