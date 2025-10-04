@@ -58,6 +58,14 @@
     gap: 8px;
 }
 
+@media (max-width: 1024px)
+{
+
+    .select-btn {
+        justify-content:start;
+    }
+}
+
 .dropdown-select {
     position: absolute;
     width: 100%;

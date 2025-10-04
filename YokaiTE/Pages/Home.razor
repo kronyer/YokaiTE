@@ -18,6 +18,7 @@
 @inject IJSRuntime JsRuntime
 @inject IFileInfoProvider FileInfoProvider
 @inject IDocumentService DocumentService
+@inject BreakpointService BreakpointService
 
 <PageTitle>Home</PageTitle>
 
@@ -33,91 +34,187 @@
                      OnExport="OnExport"
                      Top="@contextMenuTop"
                      Left="@contextMenuLeft"/>
-<div id="drop-zone" class="top-drop-zone">
-    <div class="top-bar">
+@if (_isMobile)
+{
+    <div id="drop-zone" class="top-drop-zone">
 
-        <nav class="nav-container">
-            <div @onclick="NavigateHome" class="logo-img">
-                <img src="svg/logo.svg" alt="New doc"/>
-            </div>
-
-            <SearchInput ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..."/>
-
-            <div style="width:106px"></div>
-        </nav>
-    </div>
-    <div id="shadow" class="upload-shadow"></div>
-    <div class="page">
-        <div class="documents">
-            <div class="top-container">
-                <span class="page-label">Meus arquivos</span>
-                <div class="order-container">
-                    <DualSelect Options="OrderOptions"
-                                Value="@SelectedField"
-                                ValueChanged="@OnOrderFieldChanged"
-                                Order="@SelectedOrder"
-                                OrderChanged="@OnOrderDirectionChanged"/>
-
-                    <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade"/>
-
+        <div class="top-bar mbl">
+            <nav class="nav-container-mbl">
+                <div @onclick="NavigateHome" class="logo-img">
+                    <img src="svg/logo.svg" alt="New doc" />
                 </div>
+            </nav>
+            <span class="site-title">Haiku Text Editor</span>
+        </div>
+
+        <div id="shadow" class="upload-shadow"></div>
+        <div class="mobile-page-container">
+        <div class="top-container mbl">
+            <SearchInput Mobile="_isMobile" ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..." />
+
+            <div class="order-container mbl">
+                <DualSelect Options="OrderOptions"
+                            Value="@SelectedField"
+                            ValueChanged="@OnOrderFieldChanged"
+                            Order="@SelectedOrder"
+                            OrderChanged="@OnOrderDirectionChanged" />
+
+                <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade" />
+
             </div>
+        </div>
+        <div class="page">
+            <div class="documents">
+                
 
-            @if (isCardView)
-            {
-                <div class="doc-list-container">
-                    <div @onclick="ShowCreateModal" class="document-card">
-                        <div class="card-preview-create">
-                            <img src="svg/plus.svg" alt="New doc"/>
+                @if (isCardView)
+                {
+                    <div class="doc-list-container">
+                        <div @onclick="ShowCreateModal" class="document-card">
+                            <div class="card-preview-create">
+                                <img src="svg/plus.svg" alt="New doc" />
+                            </div>
+                            <div class="card-info">
+                                <span class="new-doc-span">Novo documento</span>
+                                <span></span>
+                            </div>
                         </div>
-                        <div class="card-info">
-                            <span class="new-doc-span">Novo documento</span>
-                            <span></span>
-                        </div>
-                    </div>
-                    @foreach (var doc in documents)
-                    {
-                        <DocumentCard Document="doc"
-                                      SelectedField="SelectedField"
-                                      FileInfoProvider="FileInfoProvider"
-                                      OnClick="() => EditDocument(doc.Id)"
-                                      OnContextMenu="e => ShowContextMenu(e, doc)" />
-                    }
-                </div>
-            }
-            else
-            {
-                <div class="doc-grid-container">
-                    <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
-                        <img src="svg/newFile.svg" alt="New doc"/>
-
-                        <span>Novo arquivo</span>
-                    </button>
-                    <div class="grid-label-container">
-                        <span class="w-50">Nome</span>
-                        <span class="w-25">Editado por ultimo há</span>
-                        <div class="w-25 d-flex">
-                        <span>
-                            Criado há
-                        </span>
-                            <div style="width:16px; height:16px;"></div>
-                        </div>
-                    </div>
-
-                    @foreach (var doc in documents)
-                    {
-                        <DocumentGridItem Document="doc"
+                        @foreach (var doc in documents)
+                        {
+                            <DocumentCard Document="doc"
+                                          SelectedField="SelectedField"
                                           FileInfoProvider="FileInfoProvider"
                                           OnClick="() => EditDocument(doc.Id)"
                                           OnContextMenu="e => ShowContextMenu(e, doc)" />
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="doc-grid-container">
+                        <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
+                            <img src="svg/newFile.svg" alt="New doc" />
 
-                    }
-                </div>
-            }
+                            <span>Novo arquivo</span>
+                        </button>
+                        <div class="grid-label-container">
+                            <span class="w-50">Nome</span>
+                            <span class="w-25">Editado</span>
+                            <div class="w-25 d-flex">
+                                <span>
+                                    Criado
+                                </span>
+                                <div style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
 
+                        @foreach (var doc in documents)
+                        {
+                            <DocumentGridItem Document="doc"
+                                              FileInfoProvider="FileInfoProvider"
+                                              OnClick="() => EditDocument(doc.Id)"
+                                              OnContextMenu="e => ShowContextMenu(e, doc)" />
+
+                        }
+                    </div>
+                }
+
+            </div>
         </div>
     </div>
-</div>
+    </div>
+}
+else
+{
+    <div id="drop-zone" class="top-drop-zone">
+
+        <div class="top-bar">
+
+            <nav class="nav-container">
+                <div @onclick="NavigateHome" class="logo-img">
+                    <img src="svg/logo.svg" alt="New doc" />
+                </div>
+
+                <SearchInput ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..." />
+
+                <div style="width:106px"></div>
+            </nav>
+        </div>
+
+        <div id="shadow" class="upload-shadow"></div>
+        <div class="page">
+            <div class="documents">
+                <div class="top-container">
+                    <span class="page-label">Meus arquivos</span>
+                    <div class="order-container">
+                        <DualSelect Options="OrderOptions"
+                                    Value="@SelectedField"
+                                    ValueChanged="@OnOrderFieldChanged"
+                                    Order="@SelectedOrder"
+                                    OrderChanged="@OnOrderDirectionChanged" />
+
+                        <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade" />
+
+                    </div>
+                </div>
+
+                @if (isCardView)
+                {
+                    <div class="doc-list-container">
+                        <div @onclick="ShowCreateModal" class="document-card">
+                            <div class="card-preview-create">
+                                <img src="svg/plus.svg" alt="New doc" />
+                            </div>
+                            <div class="card-info">
+                                <span class="new-doc-span">Novo documento</span>
+                                <span></span>
+                            </div>
+                        </div>
+                        @foreach (var doc in documents)
+                        {
+                            <DocumentCard Document="doc"
+                                          SelectedField="SelectedField"
+                                          FileInfoProvider="FileInfoProvider"
+                                          OnClick="() => EditDocument(doc.Id)"
+                                          OnContextMenu="e => ShowContextMenu(e, doc)" />
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="doc-grid-container">
+                        <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
+                            <img src="svg/newFile.svg" alt="New doc" />
+
+                            <span>Novo arquivo</span>
+                        </button>
+                        <div class="grid-label-container">
+                            <span class="w-50">Nome</span>
+                            <span class="w-25">Editado por ultimo há</span>
+                            <div class="w-25 d-flex">
+                                <span>
+                                    Criado há
+                                </span>
+                                <div style="width:16px; height:16px;"></div>
+                            </div>
+                        </div>
+
+                        @foreach (var doc in documents)
+                        {
+                            <DocumentGridItem Document="doc"
+                                              FileInfoProvider="FileInfoProvider"
+                                              OnClick="() => EditDocument(doc.Id)"
+                                              OnContextMenu="e => ShowContextMenu(e, doc)" />
+
+                        }
+                    </div>
+                }
+
+            </div>
+        </div>
+    </div>
+}
+
 
 @code {
     //TODO uma viewbag que salve as configurações do user (grid/card, orderby, etc) singleton
@@ -141,6 +238,9 @@
     private SortOrder SelectedOrder { get; set; } = SortOrder.Desc;
 
     private bool showRenameModal = false;
+
+    private bool _isMobile;
+
 
     [JSInvokable]
     public async Task ImportHaikuFromBase64(string base64, string filename)
@@ -217,7 +317,17 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await BreakpointService.InitializeAsync();
+        BreakpointService.OnChange += HandleBreakpointChange;
+        _isMobile = BreakpointService.CurrentBreakpoint == "mobile";
+
         await LoadDocuments();
+    }
+
+    private void HandleBreakpointChange(string bp)
+    {
+        _isMobile = bp == "mobile";
+        InvokeAsync(StateHasChanged);
     }
 
     private async Task ShowOptions(MouseEventArgs e, int documentId)
@@ -361,6 +471,7 @@
         finally
         {
             dotNetRef?.Dispose();
+            BreakpointService.OnChange -= HandleBreakpointChange;
         }
     }
 

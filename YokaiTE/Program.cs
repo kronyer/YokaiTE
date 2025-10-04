@@ -22,6 +22,8 @@ builder.Services.AddScoped<IDocumentMetrics, DocumentMetrics>();
 builder.Services.AddScoped<IFileService, FileService>();
 builder.Services.AddScoped<IDocumentService, DocumentService>();
 
+builder.Services.AddSingleton<BreakpointService>();
+
 builder.Services.AddMudServices();
 
 builder.Services.AddIndexedDB(dbStore =>
