@@ -5,7 +5,7 @@
 @inject IDocumentService DocumentService
 
 <div class="modal-back">
-    <div class="modal">
+    <div class="modal @(IsMobile ? "mbl" : "")">
         <div class="modal-top-container">
             <h1 class="modal-name">Renomear arquivo</h1>
             <button @onclick="OnCancel">
@@ -25,6 +25,7 @@
 @code {
     [Parameter] public DocumentMetadata Document { get; set; }
     [Parameter] public EventCallback OnClose { get; set; }
+    [Parameter] public bool IsMobile { get; set; }
 
     private async Task Rename()
     {
