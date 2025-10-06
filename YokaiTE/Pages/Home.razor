@@ -24,9 +24,9 @@
 
 @if (showRenameModal && selectedDocument != null)
 {
-    <RenameDocumentModal Document="selectedDocument" OnClose="() => showRenameModal = false"/>
+    <RenameDocumentModal IsMobile="_isMobile" Document="selectedDocument" OnClose="() => showRenameModal = false"/>
 }
-<CreateDocumentModal Visible="@showCreateModal" VisibleChanged="@(v => showCreateModal = v)" OnSave="SaveDocument"/>
+<CreateDocumentModal IsMobile="_isMobile" Visible="@showCreateModal" VisibleChanged="@(v => showCreateModal = v)" OnSave="SaveDocument"/>
 <DocumentContextMenu Visible="@showContextMenu"
                      VisibleChanged="@(v => showContextMenu = v)"
                      OnRename="OnRename"

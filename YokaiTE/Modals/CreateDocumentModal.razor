@@ -2,42 +2,68 @@
 
 @if (Visible)
 {
-    <div class="modal-back">
-        <div class="modal">
-            <div class="modal-top-container">
-                <span class="modal-name">Criar novo arquivo</span>
-                <button @onclick="OnCancel">
-                    <img src="svg/close.svg" width="16" height="16" alt="Fechar"/>
-                </button>
-            </div>
-            <div class="first-input-row">
-                <div style="width:60%">
-                    <NormalInput Placeholder="Título" Value="@Title" ValueChanged="OnTitleChanged" Error="@TitleError"></NormalInput>
+    if (IsMobile)
+    {
+        <div class="modal-back">
+            <div class="modal mbl">
+                <div class="modal-top-container">
+                    <span class="modal-name">Criar novo arquivo</span>
+                    <button @onclick="OnCancel">
+                        <img src="svg/close.svg" width="16" height="16" alt="Fechar" />
+                    </button>
                 </div>
-                <div style="width:40%">
-                    <ColorSelect Label="Cor"
-                                 Options="ColorOptions"
-                                 @bind-Value="SelectedColor"/>
-                </div>
+                    <div style="width:100%">
+                        <NormalInput Placeholder="Título" Value="@Title" ValueChanged="OnTitleChanged" Error="@TitleError"></NormalInput>
+                    </div>
+                    <div style="width:100%">
+                        <ColorSelect Label="Cor"
+                                     Options="ColorOptions"
+                                     @bind-Value="SelectedColor" />
+                    </div>
 
-            </div>
-            <div class="w-100">
-                <NormalSelect Label="Idioma"
-                              Options="IdiomaOptions"
-                              @bind-Value="Language"/>
-            </div>
-            <div class="button-container">
-                <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
-                <button @onclick="OnConfirm" class="confirm-btn">Criar</button>
+                <div class="button-container">
+                    <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
+                    <button @onclick="OnConfirm" class="confirm-btn">Criar</button>
+                </div>
             </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="modal-back">
+            <div class="modal">
+                <div class="modal-top-container">
+                    <span class="modal-name">Criar novo arquivo</span>
+                    <button @onclick="OnCancel">
+                        <img src="svg/close.svg" width="16" height="16" alt="Fechar" />
+                    </button>
+                </div>
+                <div class="first-input-row">
+                    <div style="width:60%">
+                        <NormalInput Placeholder="Título" Value="@Title" ValueChanged="OnTitleChanged" Error="@TitleError"></NormalInput>
+                    </div>
+                    <div style="width:40%">
+                        <ColorSelect Label="Cor"
+                                     Options="ColorOptions"
+                                     @bind-Value="SelectedColor" />
+                    </div>
+
+                </div>
+                <div class="button-container">
+                    <button @onclick="OnCancel" class="cancel-btn">Cancelar</button>
+                    <button @onclick="OnConfirm" class="confirm-btn">Criar</button>
+                </div>
+            </div>
+        </div>
+    }
+    
 }
 
 @code {
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback<Document> OnSave { get; set; }
+    [Parameter] public bool IsMobile { get; set; }
 
     private string TitleError { get; set; } = string.Empty;
 
