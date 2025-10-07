@@ -30,11 +30,37 @@ namespace YokaiTE.Utils.FileHandlers
 
         public async Task SaveAsync(YokaiTE.Document doc)
         {
+            var isNew = doc.Id == 0;
+            if (isNew && doc.CreatedAt == default) doc.CreatedAt = DateTime.Now;
             doc.LastModified = DateTime.Now;
+
             doc.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(doc);
-            var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
-            await _db.UpdateRecord(record);
-            await UpdateMetadata(doc);
+
+            if (isNew)
+            {
+                // adiciona como novo registro
+                var addRecord = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+                await _db.AddRecord(addRecord);
+
+                // tenta recuperar o id gerado pelo IndexedDB
+                var all = await _db.GetRecords<YokaiTE.Document>("documents");
+                var stored = all
+                    .OrderByDescending(d => d.LastModified)
+                    .FirstOrDefault(d => d.Title == doc.Title && d.LastModified == doc.LastModified);
+
+                if (stored != null)
+                {
+                    doc.Id = stored.Id;
+                }
+                // atualiza metadados com o id correto (se encontrado)
+                await UpdateMetadata(doc);
+            }
+            else
+            {
+                var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+                await _db.UpdateRecord(record);
+                await UpdateMetadata(doc);
+            }
         }
         
         public async Task<List<DocumentMetadata>> GetAllMetadataAsync()
@@ -62,7 +88,8 @@ public async Task DeleteAsync(long id)
                 LastModified = doc.LastModified,
                 LastOpened = doc.LastOpened,
                 BackgroundColor = doc.BackgroundColor,
-                PreviewPngBase64 = doc.PreviewPngBase64
+                PreviewPngBase64 = doc.PreviewPngBase64,
+                Favorite = doc.Favorite,
             };
 
             var metadataRecord = new StoreRecord<DocumentMetadata> { Storename = "documentMetadata", Data = metadata };
@@ -80,6 +107,19 @@ public async Task DeleteAsync(long id)
         public Task ExportAsync(YokaiTE.Document doc)
         {
             return _fileService.ExportAsync(doc);
+        }
+
+        public async Task SetFavorite(long id)
+        {
+            var doc = await _db.GetRecordById<long, YokaiTE.Document>("documents", id);
+            if (doc == null) return;
+
+            doc.Favorite = !doc.Favorite;
+
+            var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+            await _db.UpdateRecord(record);
+
+            await UpdateMetadata(doc);
         }
     }
 }

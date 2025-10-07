@@ -8,4 +8,5 @@ public interface IDocumentService
     Task ExportAsync(YokaiTE.Document doc);
     Task<List<DocumentMetadata>> GetAllMetadataAsync();
     Task DeleteAsync(long id);
+    Task SetFavorite(long id);
 }
