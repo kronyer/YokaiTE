@@ -13,6 +13,7 @@
     cursor:pointer;
     height: 300px;
     width: calc(300px * 0.707);
+    position:relative;
 }
 
 .document-card:hover{
@@ -63,3 +64,11 @@
     border-radius: 4px;
     background: #F2F2F2;
 }
+
+
+.fav-icon{
+    position:absolute;
+    right:5px;
+    top:5px;
+    fill:yellow !important;
+} 

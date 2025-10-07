@@ -7,7 +7,16 @@
      class="document-grid-item">
     <div @onclick="OnClickHandler"
          class="grid-item-name">
-        <img src="svg/doc-icon.svg" alt="Icon"/>
+         <div class="file-icon-container">
+            <img src="svg/doc-icon.svg" alt="Icon" />
+
+            @if (Document.Favorite)
+            {
+                <div class="fav-icon">
+                    <img src="svg/favoriteFilled.svg" width="10" height="10" alt="Favorito" />
+                </div>
+            }
+         </div>
         <span class="doc-title-grid">@Document.Title</span>
     </div>
     <div class="grid-item-date">
@@ -17,7 +26,7 @@
         <span>
             @FileInfoProvider.GetTimeAgo(Document.CreatedAt)
         </span>
-        <button >
+        <button @onclick="OnContextMenuHandler">
             <img src="svg/verticalDots.svg" alt="Icon"/>
         </button>
     </div>

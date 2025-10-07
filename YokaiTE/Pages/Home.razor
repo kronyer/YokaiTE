@@ -24,16 +24,20 @@
 
 @if (showRenameModal && selectedDocument != null)
 {
-    <RenameDocumentModal IsMobile="_isMobile" Document="selectedDocument" OnClose="() => showRenameModal = false"/>
+    <RenameDocumentModal IsMobile="_isMobile" Document="selectedDocument" OnClose="() => showRenameModal = false" />
 }
-<CreateDocumentModal IsMobile="_isMobile" Visible="@showCreateModal" VisibleChanged="@(v => showCreateModal = v)" OnSave="SaveDocument"/>
+<CreateDocumentModal IsMobile="_isMobile" Visible="@showCreateModal" VisibleChanged="@(v => showCreateModal = v)" OnSave="SaveDocument" />
+
 <DocumentContextMenu Visible="@showContextMenu"
                      VisibleChanged="@(v => showContextMenu = v)"
                      OnRename="OnRename"
                      OnDelete="OnDelete"
+                     OnSetFavorite="OnFavorite"
                      OnExport="OnExport"
                      Top="@contextMenuTop"
-                     Left="@contextMenuLeft"/>
+                     Left="@contextMenuLeft"
+                     IsFavorite="selectedDocument?.Favorite ?? false"
+                     />
 @if (_isMobile)
 {
     <div id="drop-zone" class="top-drop-zone">
@@ -49,79 +53,79 @@
 
         <div id="shadow" class="upload-shadow"></div>
         <div class="mobile-page-container">
-        <div class="top-container mbl">
-            <SearchInput Mobile="_isMobile" ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..." />
+            <div class="top-container mbl">
+                <SearchInput Mobile="_isMobile" ValueChanged="OnSearchInput" Value="@SearchValue" Placeholder="Pesquisar..." />
 
-            <div class="order-container mbl">
-                <DualSelect Options="OrderOptions"
-                            Value="@SelectedField"
-                            ValueChanged="@OnOrderFieldChanged"
-                            Order="@SelectedOrder"
-                            OrderChanged="@OnOrderDirectionChanged" />
+                <div class="order-container mbl">
+                    <DualSelect Options="OrderOptions"
+                                Value="@SelectedField"
+                                ValueChanged="@OnOrderFieldChanged"
+                                Order="@SelectedOrder"
+                                OrderChanged="@OnOrderDirectionChanged" />
 
-                <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade" />
+                    <SwitchToggle @bind-Value="isCardView" AriaLabel="Alternar entre lista e grade" />
 
+                </div>
             </div>
-        </div>
-        <div class="page">
-            <div class="documents">
-                
+            <div class="page">
+                <div class="documents">
 
-                @if (isCardView)
-                {
-                    <div class="doc-list-container">
-                        <div @onclick="ShowCreateModal" class="document-card">
-                            <div class="card-preview-create">
-                                <img src="svg/plus.svg" alt="New doc" />
-                            </div>
-                            <div class="card-info">
-                                <span class="new-doc-span">Novo documento</span>
-                                <span></span>
-                            </div>
-                        </div>
-                        @foreach (var doc in documents)
-                        {
-                            <DocumentCard Document="doc"
-                                          SelectedField="SelectedField"
-                                          FileInfoProvider="FileInfoProvider"
-                                          OnClick="() => EditDocument(doc.Id)"
-                                          OnContextMenu="e => ShowContextMenu(e, doc)" />
-                        }
-                    </div>
-                }
-                else
-                {
-                    <div class="doc-grid-container">
-                        <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
-                            <img src="svg/newFile.svg" alt="New doc" />
 
-                            <span>Novo arquivo</span>
-                        </button>
-                        <div class="grid-label-container">
-                            <span class="w-50">Nome</span>
-                            <span class="w-25">Editado</span>
-                            <div class="w-25 d-flex">
-                                <span>
-                                    Criado
-                                </span>
-                                <div style="width:16px; height:16px;"></div>
+                    @if (isCardView)
+                    {
+                        <div class="doc-list-container">
+                            <div @onclick="ShowCreateModal" class="document-card">
+                                <div class="card-preview-create">
+                                    <img src="svg/plus.svg" alt="New doc" />
+                                </div>
+                                <div class="card-info">
+                                    <span class="new-doc-span">Novo documento</span>
+                                    <span></span>
+                                </div>
                             </div>
-                        </div>
-
-                        @foreach (var doc in documents)
-                        {
-                            <DocumentGridItem Document="doc"
+                            @foreach (var doc in documents)
+                            {
+                                <DocumentCard Document="doc"
+                                              SelectedField="SelectedField"
                                               FileInfoProvider="FileInfoProvider"
                                               OnClick="() => EditDocument(doc.Id)"
                                               OnContextMenu="e => ShowContextMenu(e, doc)" />
+                            }
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="doc-grid-container">
+                            <button @onclick="ShowCreateModal" class="grid-new-doc-btn">
+                                <img src="svg/newFile.svg" alt="New doc" />
 
-                        }
-                    </div>
-                }
+                                <span>Novo arquivo</span>
+                            </button>
+                            <div class="grid-label-container">
+                                <span class="w-50">Nome</span>
+                                <span class="w-25">Editado</span>
+                                <div class="w-25 d-flex">
+                                    <span>
+                                        Criado
+                                    </span>
+                                    <div style="width:16px; height:16px;"></div>
+                                </div>
+                            </div>
 
+                            @foreach (var doc in documents)
+                            {
+                                <DocumentGridItem Document="doc"
+                                                  FileInfoProvider="FileInfoProvider"
+                                                  OnClick="() => EditDocument(doc.Id)"
+                                                  OnContextMenu="e => ShowContextMenu(e, doc)" />
+
+                            }
+                        </div>
+                    }
+
+                </div>
             </div>
         </div>
-    </div>
     </div>
 }
 else
@@ -233,7 +237,7 @@ else
     private int contextMenuTop;
     private int contextMenuLeft;
     private DocumentMetadata? selectedDocument;
-    
+
     private string SelectedField { get; set; } = "Data de abertura";
     private SortOrder SelectedOrder { get; set; } = SortOrder.Desc;
 
@@ -382,9 +386,15 @@ else
         };
 
         if (SelectedOrder == SortOrder.Asc)
-            documents = documents.OrderBy(keySelector).ToList();
+            documents = documents
+                .OrderByDescending(d => d.Favorite)
+                .ThenBy(keySelector)
+                .ToList();
         else
-            documents = documents.OrderByDescending(keySelector).ToList();
+            documents = documents
+                .OrderByDescending(d => d.Favorite)
+                .ThenByDescending(keySelector)
+                .ToList();
 
         StateHasChanged();
     }
@@ -430,6 +440,13 @@ else
         if (selectedDocument is null) return;
         showRenameModal = true;
         StateHasChanged();
+    }
+
+    private async Task OnFavorite()
+    {
+        if (selectedDocument is null) return;
+        await DocumentService.SetFavorite(selectedDocument.Id);
+        await LoadDocuments();
     }
 
     private async Task OnDelete()

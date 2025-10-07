@@ -4,6 +4,24 @@
          @oncontextmenu="OnBackdropClick"
          class="modal-back" @onclick="OnBackdropClick">
         <div class="context-menu-modal" style="top:@TopPx; left:@LeftPx;" @onclick:stopPropagation>
+            @if (IsFavorite)
+            {
+                <button class="context-btn rename" @onclick="Favorite">
+                    <img src="svg/favoriteOutlined.svg" width="16" height="16" alt="Favoritar" />
+                    <span>
+                        Desfavoritar
+                    </span>
+                </button>
+            }
+            else
+            {
+                <button class="context-btn rename" @onclick="Favorite">
+                    <img src="svg/favoriteFilled.svg" width="16" height="16" alt="Favoritar" />
+                    <span>
+                        Favoritar
+                    </span>
+                </button>
+            }
             <button class="context-btn rename" @onclick="Rename">
                 <img src="svg/pencil.svg" width="16" height="16" alt="Renomear"/>
                 <span>
@@ -18,7 +36,7 @@
             </button>
             @* TODO change icon *@
             <button class="context-btn delete" @onclick="Export">
-                <img src="svg/trash.svg" width="16" height="16" alt="Download"/>
+                <img src="svg/download.svg" width="16" height="16" alt="Download"/>
                 <span>
                     Download
                 </span>
@@ -31,10 +49,12 @@
     [Parameter] public bool Visible { get; set; }
     [Parameter] public EventCallback<bool> VisibleChanged { get; set; }
     [Parameter] public EventCallback OnRename { get; set; }
+    [Parameter] public EventCallback OnSetFavorite { get; set; }
     [Parameter] public EventCallback OnDelete { get; set; }
     [Parameter] public EventCallback OnExport { get; set; }
     [Parameter] public int Top { get; set; }
     [Parameter] public int Left { get; set; }
+    [Parameter] public bool IsFavorite { get; set; } = false;
 
     private string TopPx => $"{Top}px";
     private string LeftPx => $"{Left}px";
@@ -47,6 +67,12 @@
     private async Task Rename()
     {
         await OnRename.InvokeAsync();
+        await VisibleChanged.InvokeAsync(false);
+    }
+
+    private async Task Favorite()
+    {
+        await OnSetFavorite.InvokeAsync();
         await VisibleChanged.InvokeAsync(false);
     }
 
