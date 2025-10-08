@@ -1,0 +1,9 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="46" height="32" viewBox="0 0 46 32" fill="none">
+  @* Ícone “false” na thumb *@
+  <path d="M20 10H31" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M20 16H31" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M20 22H31" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M15 10H16" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M15 16H16" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
+  <path d="M15 22H16" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
+</svg>

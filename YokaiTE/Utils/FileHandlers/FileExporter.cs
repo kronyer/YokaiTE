@@ -57,7 +57,7 @@ public class FileExporter : IFileExporter
     {
         if (documentMetadata == null) return;
         
-        var fullDocument = await _db.GetRecordById<long, Document>("documents", documentMetadata.Id);
+        var fullDocument = await _db.GetRecordById<Guid, Document>("documents", documentMetadata.Id);
         if (fullDocument == null) return;
         // Serializa JSON
         var json = JsonSerializer.Serialize(fullDocument);

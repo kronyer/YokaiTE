@@ -2,7 +2,7 @@
 
 public class Document
 {
-    public long Id { get; set; }
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public string Content { get; set; }
     public DateTime CreatedAt { get; set; }
@@ -13,6 +13,6 @@ public class Document
     public bool Favorite { get; set; } = false;
     public string? PreviewPngBase64 { get; set; } // preview persistido
 
-    
-    
+    public string Version { get; set; } = "0.0.0";
+
 }

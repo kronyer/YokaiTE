@@ -14,13 +14,13 @@ namespace YokaiTE.Utils.FileHandlers
             _fileService = fileService;
         }
 
-        public async Task<YokaiTE.Document?> LoadAsync(long id)
+        public async Task<YokaiTE.Document?> LoadAsync(Guid id)
         {
-            var doc = await _db.GetRecordById<long, YokaiTE.Document>("documents", id);
+            var doc = await _db.GetRecordById<Guid, Document>("documents", id);
             if (doc != null)
             {
                 doc.LastOpened = DateTime.Now;
-                var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+                var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
                 await _db.UpdateRecord(record);
                 await UpdateMetadata(doc);
 
@@ -28,22 +28,24 @@ namespace YokaiTE.Utils.FileHandlers
             return doc;
         }
 
-        public async Task SaveAsync(YokaiTE.Document doc)
+        public async Task SaveAsync(Document doc)
         {
-            var isNew = doc.Id == 0;
-            if (isNew && doc.CreatedAt == default) doc.CreatedAt = DateTime.Now;
+            var isNew = doc.Id == Guid.Empty;
+            if (isNew)
+            {
+                doc.Id = Guid.NewGuid();
+                if (doc.CreatedAt == default) doc.CreatedAt = DateTime.Now;
+            }
             doc.LastModified = DateTime.Now;
 
             doc.PreviewPngBase64 = PreviewRenderer.RenderPngBase64(doc);
 
             if (isNew)
             {
-                // adiciona como novo registro
-                var addRecord = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+                var addRecord = new StoreRecord<Document> { Storename = "documents", Data = doc };
                 await _db.AddRecord(addRecord);
 
-                // tenta recuperar o id gerado pelo IndexedDB
-                var all = await _db.GetRecords<YokaiTE.Document>("documents");
+                var all = await _db.GetRecords<Document>("documents");
                 var stored = all
                     .OrderByDescending(d => d.LastModified)
                     .FirstOrDefault(d => d.Title == doc.Title && d.LastModified == doc.LastModified);
@@ -52,33 +54,32 @@ namespace YokaiTE.Utils.FileHandlers
                 {
                     doc.Id = stored.Id;
                 }
-                // atualiza metadados com o id correto (se encontrado)
                 await UpdateMetadata(doc);
             }
             else
             {
-                var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+                var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
                 await _db.UpdateRecord(record);
                 await UpdateMetadata(doc);
             }
         }
-        
+
         public async Task<List<DocumentMetadata>> GetAllMetadataAsync()
         {
             return await _db.GetRecords<DocumentMetadata>("documentMetadata");
         }
-        
-public async Task DeleteAsync(long id)
+
+        public async Task DeleteAsync(Guid id)
         {
             // Deleta o documento principal
-            await _db.DeleteRecord<long>("documents", id);
-            
+            await _db.DeleteRecord<Guid>("documents", id);
+
             // Deleta os metadados correspondentes
-            await _db.DeleteRecord<long>("documentMetadata", id);
+            await _db.DeleteRecord<Guid>("documentMetadata", id);
         }
-        
-        
-        private async Task UpdateMetadata(YokaiTE.Document doc)
+
+
+        private async Task UpdateMetadata(Document doc)
         {
             var metadata = new DocumentMetadata
             {
@@ -96,27 +97,27 @@ public async Task DeleteAsync(long id)
             await _db.UpdateRecord(metadataRecord);
         }
 
-        public async Task UpdateLastOpenedAsync(YokaiTE.Document doc)
+        public async Task UpdateLastOpenedAsync(Document doc)
         {
             doc.LastOpened = DateTime.Now;
-            var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+            var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
             await _db.UpdateRecord(record);
             await UpdateMetadata(doc);
         }
 
-        public Task ExportAsync(YokaiTE.Document doc)
+        public Task ExportAsync(Document doc)
         {
             return _fileService.ExportAsync(doc);
         }
 
-        public async Task SetFavorite(long id)
+        public async Task SetFavorite(Guid id)
         {
-            var doc = await _db.GetRecordById<long, YokaiTE.Document>("documents", id);
+            var doc = await _db.GetRecordById<Guid, Document>("documents", id);
             if (doc == null) return;
 
             doc.Favorite = !doc.Favorite;
 
-            var record = new StoreRecord<YokaiTE.Document> { Storename = "documents", Data = doc };
+            var record = new StoreRecord<Document> { Storename = "documents", Data = doc };
             await _db.UpdateRecord(record);
 
             await UpdateMetadata(doc);

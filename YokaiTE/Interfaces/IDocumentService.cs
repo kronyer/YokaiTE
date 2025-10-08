@@ -2,11 +2,11 @@
 
 public interface IDocumentService
 {
-    Task<YokaiTE.Document?> LoadAsync(long id);
-    Task SaveAsync(YokaiTE.Document doc);
-    Task UpdateLastOpenedAsync(YokaiTE.Document doc);
-    Task ExportAsync(YokaiTE.Document doc);
+    Task<YokaiTE.Document?> LoadAsync(Guid id);
+    Task SaveAsync(Document doc);
+    Task UpdateLastOpenedAsync(Document doc);
+    Task ExportAsync(Document doc);
     Task<List<DocumentMetadata>> GetAllMetadataAsync();
-    Task DeleteAsync(long id);
-    Task SetFavorite(long id);
+    Task DeleteAsync(Guid id);
+    Task SetFavorite(Guid id);
 }

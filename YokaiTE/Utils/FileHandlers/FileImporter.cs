@@ -48,7 +48,7 @@ public class FileImporter : IFileImporter
         if (imported == null) return;
 
         // Reset id para criar novo registro
-        imported.Id = 0;
+        imported.Id = Guid.Empty;
         imported.CreatedAt = DateTime.Now;
         imported.LastModified = DateTime.Now;
         imported.LastOpened = DateTime.Now;

@@ -1,4 +1,4 @@
-﻿@page "/edit/{Id:long}"
+﻿@page "/edit/{Id}"
 @using System.Diagnostics
 @using System.Text
 @using System.Text.Json
@@ -20,8 +20,6 @@
 
 @if (_document == null)
 {
-    // TODO loader aqui
-    //pm um loading aqui
     <MockEditToolbar BackHome="BackHome"/>
     <div class="edit-page">
 
@@ -82,7 +80,7 @@ else
 
 @code {
 
-    [Parameter] public long Id { get; set; }
+    [Parameter] public string Id { get; set; }
     private readonly SelectionState _docState = new();
     private ElementReference _overlayRef;
     private Document? _document;
@@ -167,7 +165,7 @@ else
         BreakpointService.OnChange += HandleBreakpointChange;
         _isMobile = BreakpointService.CurrentBreakpoint == "mobile";
 
-        _document = await DocumentService.LoadAsync(Id);
+        _document = await DocumentService.LoadAsync(Guid.Parse(Id));
         _conteudoSetado = false;
     }
 
