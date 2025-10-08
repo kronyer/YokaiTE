@@ -2,7 +2,7 @@
 
 public class DocumentMetadata
 {
-    public long Id { get; set; }
+    public Guid Id { get; set; }
     public string Title { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime LastModified { get; set; }

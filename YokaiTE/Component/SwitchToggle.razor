@@ -5,48 +5,17 @@
      aria-label="@AriaLabel"
      @onkeydown="OnKeyDown">
 
-    <svg xmlns="http://www.w3.org/2000/svg" width="46" height="32" viewBox="0 0 46 32" fill="none"
-         @onclick="() => OnIconClick(false)" @onclick:stopPropagation="true">
-        @* Ícone da esquerda (estado false) *@
-        <path d="M20 10H31" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M20 16H31" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M20 22H31" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M15 10H16" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M15 16H16" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M15 22H16" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
-
-    <svg xmlns="http://www.w3.org/2000/svg" width="46" height="32" viewBox="0 0 46 32" fill="none"
-         @onclick="() => OnIconClick(true)" @onclick:stopPropagation="true">
-        @* Ícone da direita (estado true) *@
-        <path d="M20.125 7H14.875C14.3918 7 14 7.39175 14 7.875V13.125C14 13.6082 14.3918 14 14.875 14H20.125C20.6082 14 21 13.6082 21 13.125V7.875C21 7.39175 20.6082 7 20.125 7Z" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M31.125 7H25.875C25.3918 7 25 7.39175 25 7.875V13.125C25 13.6082 25.3918 14 25.875 14H31.125C31.6082 14 32 13.6082 32 13.125V7.875C32 7.39175 31.6082 7 31.125 7Z" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M20.125 18H14.875C14.3918 18 14 18.3918 14 18.875V24.125C14 24.6082 14.3918 25 14.875 25H20.125C20.6082 25 21 24.6082 21 24.125V18.875C21 18.3918 20.6082 18 20.125 18Z" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-        <path d="M31.125 18H25.875C25.3918 18 25 18.3918 25 18.875V24.125C25 24.6082 25.3918 25 25.875 25H31.125C31.6082 25 32 24.6082 32 24.125V18.875C32 18.3918 31.6082 18 31.125 18Z" stroke="#181818" stroke-linecap="round" stroke-linejoin="round" />
-    </svg>
+    <img src="svg/gridIcon.svg" alt="Grid" @onclick="() => OnIconClick(false)" @onclick:stopPropagation="true" />
+    <img src="svg/cardViewIcon.svg" alt="Card" @onclick="() => OnIconClick(true)" @onclick:stopPropagation="true" />
 
     <div class="thumb">
         @if (!Value)
         {
-            <svg xmlns="http://www.w3.org/2000/svg" width="46" height="32" viewBox="0 0 46 32" fill="none">
-                @* Ícone “false” na thumb *@
-                <path d="M20 10H31" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M20 16H31" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M20 22H31" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M15 10H16" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M15 16H16" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M15 22H16" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <img src="svg/gridIconFalse.svg" alt="GridFalse"/>
         }
         else
         {
-            <svg xmlns="http://www.w3.org/2000/svg" width="46" height="32" viewBox="0 0 46 32" fill="none">
-                @* Ícone “true” na thumb *@
-                <path d="M20.125 7H14.875C14.3918 7 14 7.39175 14 7.875V13.125C14 13.6082 14.3918 14 14.875 14H20.125C20.6082 14 21 13.6082 21 13.125V7.875C21 7.39175 20.6082 7 20.125 7Z" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M31.125 7H25.875C25.3918 7 25 7.39175 25 7.875V13.125C25 13.6082 25.3918 14 25.875 14H31.125C31.6082 14 32 13.6082 32 13.125V7.875C32 7.39175 31.6082 7 31.125 7Z" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M20.125 18H14.875C14.3918 18 14 18.3918 14 18.875V24.125C14 24.6082 14.3918 25 14.875 25H20.125C20.6082 25 21 24.6082 21 24.125V18.875C21 18.3918 20.6082 18 20.125 18Z" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-                <path d="M31.125 18H25.875C25.3918 18 25 18.3918 25 18.875V24.125C25 24.6082 25.3918 25 25.875 25H31.125C31.6082 25 32 24.6082 32 24.125V18.875C32 18.3918 31.6082 18 31.125 18Z" stroke="#E6E6E6" stroke-linecap="round" stroke-linejoin="round" />
-            </svg>
+            <img src="svg/cardViewIconFalse.svg" alt="CardFalse" />
         }
     </div>
 

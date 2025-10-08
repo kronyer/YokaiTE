@@ -33,7 +33,7 @@ builder.Services.AddIndexedDB(dbStore =>
     dbStore.Stores.Add(new StoreSchema
     {
         Name = "documents",
-        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = false },
         Indexes = new List<IndexSpec>
         {
             new IndexSpec { Name = "title", KeyPath = "title", Auto = false }
@@ -43,7 +43,7 @@ builder.Services.AddIndexedDB(dbStore =>
     dbStore.Stores.Add(new StoreSchema
     {
         Name = "documentMetadata",
-        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = true },
+        PrimaryKey = new IndexSpec { Name = "id", KeyPath = "id", Auto = false },
         Indexes = new List<IndexSpec>
         {
             new IndexSpec { Name = "title", KeyPath = "title", Auto = false }
