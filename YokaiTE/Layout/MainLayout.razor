@@ -1,4 +1,5 @@
-﻿@inherits LayoutComponentBase
+﻿@using YokaiTE.Component
+@inherits LayoutComponentBase
 
 @* Required *@
 <MudThemeProvider />
@@ -10,10 +11,10 @@
 @* Needed for snackbars *@
 <MudSnackbarProvider />
 
-    
+<AnalyticsConsentBanner />
 
-    <main>
-        <article class="content">
-            @Body
-        </article>
-    </main>
+<main>
+    <article class="content">
+        @Body
+    </article>
+</main>
