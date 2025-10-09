@@ -111,31 +111,31 @@
                 function ensurePrintStyle() {
                     if (document.getElementById('zen-print-style')) return;
                     const css = `
-        @page { margin: 0; size: auto; }
-        html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
-        .print-only { display: none; }
-        @media print {
-          /* Esconde todo o resto e mostra apenas o container de impressão */
-          body > :not(.print-only) { display: none !important; }
-          .print-only {
-            display: block !important;
-            padding: 24px !important;
-            box-sizing: border-box !important;
-            width: calc(100% - 48px) !important; /* 100% menos padding lateral */
-            max-width: 100% !important;
-            height: auto !important;
-            margin: 0 !important;
-            overflow: visible !important;
-          }
-          /* Evita que elementos internos excedam a largura e gerem scroll lateral */
-          .print-only * {
-            max-width: 100% !important;
-            box-sizing: border-box !important;
-            overflow-wrap: break-word !important;
-            word-break: break-word !important;
-          }
-        }
-      `;
+            @page { margin: 0; size: auto; }
+            html, body { margin: 0; padding: 0; height: 100%; width: 100%; overflow: hidden; }
+            .print-only { display: none; }
+            @media print {
+              /* Esconde todo o resto e mostra apenas o container de impressão */
+              body > :not(.print-only) { display: none !important; }
+              .print-only {
+                display: block !important;
+                padding: 24px !important;
+                box-sizing: border-box !important;
+                width: calc(100% - 48px) !important; /* 100% menos padding lateral */
+                max-width: 100% !important;
+                height: auto !important;
+                margin: 0 !important;
+                overflow: visible !important;
+              }
+              /* Evita que elementos internos excedam a largura e gerem scroll lateral */
+              .print-only * {
+                max-width: 100% !important;
+                box-sizing: border-box !important;
+                overflow-wrap: break-word !important;
+                word-break: break-word !important;
+              }
+            }
+          `;
                     const style = document.createElement('style');
                     style.id = 'zen-print-style';
                     style.appendChild(document.createTextNode(css));
@@ -527,6 +527,7 @@
     <script src="js/selectionState.js"></script>
     <script src="js/preview.js"></script>
     <script src="js/breakpoint.js"></script>
+    <script src="js/keyboardSound.js"></script>
 </body>
 
 </html>
