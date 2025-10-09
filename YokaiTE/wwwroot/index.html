@@ -10,17 +10,42 @@
     <link rel="stylesheet" href="css/app.css" />
 
     <link rel="icon" type="image/png" href="logo-192.png" />
-    
+
     <link href="YokaiTE.styles.css" rel="stylesheet" />
     <link href="manifest.webmanifest" rel="manifest" />
     <link rel="apple-touch-icon" sizes="192x192" type="image/svg+xml" href="svg/logo.svg" />
     <link rel="apple-touch-icon" sizes="512x512" type="image/svg+xml" href="svg/logo.svg" />
-    
+
     <link href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap" rel="stylesheet" />
     <!-- Important: Increment the version parameter whenever you update MudBlazor to prevent caching issues -->
     <link href="_content/MudBlazor/MudBlazor.min.css?v=1" rel="stylesheet" />
     <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@100,200,300,400,500,700,800,900&display=swap"
           rel="stylesheet">
+
+    <!--Clarity-->
+    <!--<script type="text/javascript">
+        (function (c, l, a, r, i, t, y) {
+            c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+            t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+            y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+        })(window, document, "clarity", "script", "tnittdqcv6");
+    </script>-->
+    <!--end clarity-->
+
+    <script src="js/analyticsConsent.js"></script>
+    <script>
+        // Measurement ID — ajuste se necessário
+        const _MEASUREMENT_ID = 'G-TEJ9D4LVD1';
+        try {
+            const consent = localStorage.getItem('analyticsConsent');
+            if (consent === 'granted') {
+                // carrega analytics se já foi aceito
+                window.analyticsConsent && window.analyticsConsent.loadGtag(_MEASUREMENT_ID);
+            }
+        } catch (e) {
+            // ignore
+        }
+    </script>
 
 </head>
 

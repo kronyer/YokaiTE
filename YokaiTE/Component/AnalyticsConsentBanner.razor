@@ -1,0 +1,58 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime Js
+
+@if (_showBanner)
+{
+    <div class="analytics-consent-banner" role="dialog" aria-live="polite">
+        <div class="consent-content">
+            <div class="consent-text">
+                <strong>Usamos Google Analytics</strong>
+                <div class="consent-sub">O uso de cookies permite melhorar o produto coletando métricas anônimas. Você concorda com o envio de dados anônimos para o Google Analytics?</div>
+            </div>
+            <div class="consent-actions">
+                <button class="consent-btn secondary" @onclick="Decline">Recusar</button>
+                <button class="consent-btn primary" @onclick="Accept">Aceitar</button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private bool _showBanner = false;
+    private const string MeasurementId = "G-TEJ9D4LVD1"; // ajuste se necessário
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var consent = await Js.InvokeAsync<string>("analyticsConsent.getConsent");
+            if (string.IsNullOrEmpty(consent))
+            {
+                _showBanner = true;
+            }
+            else
+            {
+                _showBanner = false;
+            }
+        }
+        catch
+        {
+            // se falhar ao acessar localStorage, mostrar banner para ser seguro
+            _showBanner = true;
+        }
+    }
+
+    private async Task Accept()
+    {
+        _showBanner = false;
+        await Js.InvokeVoidAsync("analyticsConsent.setConsent", true, MeasurementId);
+        StateHasChanged();
+    }
+
+    private async Task Decline()
+    {
+        _showBanner = false;
+        await Js.InvokeVoidAsync("analyticsConsent.setConsent", false, null);
+        StateHasChanged();
+    }
+}

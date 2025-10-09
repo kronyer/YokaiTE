@@ -1,0 +1,52 @@
+.analytics-consent-banner {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    bottom: 16px;
+    background: rgba(24,24,24,0.95);
+    color: #fff;
+    border-radius: 8px;
+    padding: 12px;
+    z-index: 2000;
+    box-shadow: 0 6px 24px rgba(0,0,0,0.3);
+}
+
+    .analytics-consent-banner .consent-content {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+    }
+
+    .analytics-consent-banner .consent-text {
+        max-width: 70%;
+    }
+
+        .analytics-consent-banner .consent-text .consent-sub {
+            font-size: 0.9rem;
+            color: #cfcfcf;
+            margin-top: 4px;
+        }
+
+.consent-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.consent-btn {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 0;
+    cursor: pointer;
+}
+
+    .consent-btn.primary {
+        background: #1976d2;
+        color: #fff;
+    }
+
+    .consent-btn.secondary {
+        background: transparent;
+        color: #fff;
+        border: 1px solid rgba(255,255,255,0.12);
+    }

@@ -26,6 +26,9 @@ builder.Services.AddSingleton<BreakpointService>();
 
 builder.Services.AddMudServices();
 
+//builder.Services.AddScoped<ClarityTracker>();
+
+
 builder.Services.AddIndexedDB(dbStore =>
 {
     dbStore.DbName = "YokaiTE";
