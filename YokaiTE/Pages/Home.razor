@@ -266,6 +266,10 @@ else
     {
         if (firstRender)
         {
+            await BreakpointService.InitializeAsync();
+            BreakpointService.OnChange += HandleBreakpointChange;
+            _isMobile = BreakpointService.CurrentBreakpoint == "mobile";
+
             dotNetRef = DotNetObjectReference.Create(this);
             await JsRuntime.InvokeVoidAsync("haikuDrop.register", dotNetRef, "drop-zone");
 
@@ -321,10 +325,6 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        await BreakpointService.InitializeAsync();
-        BreakpointService.OnChange += HandleBreakpointChange;
-        _isMobile = BreakpointService.CurrentBreakpoint == "mobile";
-
         await LoadDocuments();
     }
 

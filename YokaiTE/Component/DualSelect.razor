@@ -9,6 +9,8 @@
     </button>
     @if (isOpen)
     {
+        <div class="dual-select-backdrop" @onclick="Close"></div>
+
         <div class="dropdown-select">
             <div class="group">
                 <div class="label">Ordenar por:</div>
@@ -89,6 +91,12 @@
             Order = o;
             await OrderChanged.InvokeAsync(o);
         }
+    }
+
+    private void Close()
+    {
+        isOpen = false;
+        StateHasChanged();
     }
 
 }
