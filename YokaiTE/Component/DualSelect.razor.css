@@ -98,3 +98,10 @@
     height: 16px;
     aspect-ratio: 1/1;
 }
+
+.dual-select-backdrop {
+    position: fixed;
+    inset: 0;
+    background: transparent; /* ou rgba(0,0,0,0.2) para escurecer */
+    z-index: 1000;
+}
